@@ -15,7 +15,8 @@ def get_rankings():
     # add positions
     projections_df = util.add_positions(projections_df)
 
-    # get cutline score (gotta do more fuckery here with multiple positions) - col AE in workbook
+    # get cutline score - col AE in workbook
+    #   TODO: figure out the fuckery with multiple positions
     projections_df = factors.calc_cutline_xp(projections_df)
 
     # get position rank cutoffs - cols AN:AU in workbook
