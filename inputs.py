@@ -23,6 +23,14 @@ user_inputs = {
         "mult_position_2": 0,
         "mult_position_3plus": 0,
         "mult_position_4plus": 0
+    },
+    "scoring_coef": {
+        "sb": 5,
+        "rbi": 2,
+        "hr": 6,
+        "r": 2,
+        "hit": 4,
+        "ab": -1
     }
 }
 

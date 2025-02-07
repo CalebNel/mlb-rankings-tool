@@ -1,5 +1,21 @@
 import pandas as pd
-from constants import summarized_position_map
+from constants import summarized_position_map, vdp_positional_discount_map
+
+
+def calc_total_hitter_budget(inputs):
+    # total "free money" spent on hitters
+    #   e.g. total budget minus the number of players selected (since the min price of drafted players is $1)
+    
+    position_slots = inputs.get('num_slots')
+    
+    total_hitter_sal_raw = inputs.get('teams')*inputs.get('budget')*inputs.get('hitting_budget_pct')
+    total_hitters = position_slots.get('c') + position_slots.get('1b') + position_slots.get('2b') + position_slots.get('ss') + position_slots.get('3b') + position_slots.get('ci') + position_slots.get('mi') + position_slots.get('o') + position_slots.get('u')
+    
+    total_hitter_sal = total_hitter_sal_raw - total_hitters*inputs.get('teams')
+    
+    return total_hitter_sal
+    
+    
 
 
 def get_position_cutoff_map(inputs):
@@ -35,47 +51,44 @@ def get_position_cutoff_map(inputs):
     return(position_cutoff_map)
     
 
-def calc_cutline_xp(projections_df):
-    # no idea why these factors are the way they are - hardcoded into vlad's workbook
-    sb_fact = 5
-    rbi_fact = 2
-    hr_fact = 6
-    r_fact = 2
-    hit_fact = 4
-    ab_fact = -1
+def calc_projected_points(projections_df, inputs):
+    # comes from user inputs
+    sb_fact = inputs.get('scoring_coef').get('sb')
+    rbi_fact = inputs.get('scoring_coef').get('rbi')
+    hr_fact = inputs.get('scoring_coef').get('hr')
+    r_fact = inputs.get('scoring_coef').get('r')
+    hit_fact = inputs.get('scoring_coef').get('hit')
+    ab_fact = inputs.get('scoring_coef').get('ab')
     
-    # get scores for each component of cutline then sum aggregate
+    # get scores for each component of points then sum aggregate
     ab_score = projections_df['ab'] * ab_fact
     hits_score = round(projections_df['ab'] * projections_df['avg'] * hit_fact, 0)
     runs_score = projections_df['r'] * r_fact
     hr_score = projections_df['hr'] * hr_fact
     rbi_score = projections_df['rbi'] * rbi_fact
     sb_score = projections_df['sb'] * sb_fact
-    projections_df['cutline_raw'] = ab_score + hits_score + runs_score + hr_score + rbi_score + sb_score
+    projections_df['points_raw'] = ab_score + hits_score + runs_score + hr_score + rbi_score + sb_score
     
-    # cutline then gets adjusted by some league-setting factors - docks for multiple positions
-    # cutline_adjustments
+    # points then gets adjusted by some league-setting factors - docks for multiple positions
+    # points_adjustments
     
     return projections_df
     
     
 
 def get_league_weighted_avg(projections_df, position_cutoff_map):
-    # first rank players by cutline grouped by their summarized position
+    # first rank players by proj pts grouped by their summarized position
     # next filter out players below the position cutoff
     # lastly take the average stats of these players weighted by pa
     
-    # rank cutline
-    projections_df['cutline_rank'] = projections_df.groupby('summarized_pos')['cutline_raw'].rank(ascending=False)
+    # rank points
+    projections_df['points_rank'] = projections_df.groupby('summarized_pos')['points_raw'].rank(ascending=False)
     
     # join position_cutoff_map 
     projections_df['summarized_pos_cut_rank'] = projections_df['summarized_pos'].map(lambda x: position_cutoff_map.get(x, {}))
     
     # filter out players below cutline rank threshold
-    rostered_players = projections_df[projections_df['cutline_rank'] <= projections_df['summarized_pos_cut_rank']]
-    
-    projections_df.to_csv('./data/projections_debug.csv', index=False)
-    rostered_players.to_csv('./data/rosteredplayers_debug.csv', index=False)
+    rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]
     
     # calc league averages for rostered players
     ab = rostered_players['ab'].mean()
@@ -96,5 +109,68 @@ def get_league_weighted_avg(projections_df, position_cutoff_map):
         'sb': sb
     }
     
-    return rostered_players_avgs
+    return rostered_players_avgs, projections_df
 
+
+def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal):
+    # calc vdp
+    #   can't just take the `rostered_players_df` because the goofy stuff that goes on with catchers
+    
+    # unpack league averages
+    league_avg_ab = league_weighted_avg.get('ab')
+    league_avg_avg = league_weighted_avg.get('avg')
+    league_avg_r = league_weighted_avg.get('r')
+    league_avg_hr = league_weighted_avg.get('hr')
+    league_avg_rbi = league_weighted_avg.get('rbi')
+    league_avg_sb = league_weighted_avg.get('sb')
+    
+    # get raw scores that go into vdp - these get adjusted by some hardcoded values down the line
+    raw_score_avg = (projections_df['avg'] - league_avg_avg) / league_avg_avg * projections_df['ab'] / league_avg_ab * 5
+    raw_score_r = (projections_df['r'] - league_avg_r) / league_avg_r * 1.6
+    raw_score_hr = (projections_df['hr'] - league_avg_hr) / league_avg_hr * 1
+    raw_score_rbi = (projections_df['rbi'] - league_avg_rbi) / league_avg_rbi * 1.4
+    raw_score_sb = (projections_df['sb'] - league_avg_sb) / league_avg_sb * 0.6
+    
+    # max raw scores
+    league_max_vdp_avg = max(raw_score_avg)
+    league_max_vdp_r = max(raw_score_r)
+    league_max_vdp_hr = max(raw_score_hr)
+    league_max_vdp_rbi = max(raw_score_rbi)
+    league_max_vdp_sb = max(raw_score_sb)
+    
+    # harcoded mult factors - pulled from the goog workbook BE:BI row 2, but no idea how they are calc'd
+    mult_fact_avg = 1.11
+    mult_fact_r = 1.05
+    mult_fact_hr = 1
+    mult_fact_rbi = 1.02
+    mult_fact_sb = 2.2
+    
+    # adjusted vdp scores
+    vdp_score_avg = raw_score_avg * mult_fact_avg / league_max_vdp_avg 
+    vdp_score_r = raw_score_r * mult_fact_r / league_max_vdp_r
+    vdp_score_hr = raw_score_hr * mult_fact_hr / league_max_vdp_hr
+    vdp_score_rbi = raw_score_rbi * mult_fact_rbi / league_max_vdp_rbi
+    vdp_score_sb = raw_score_sb * mult_fact_sb / league_max_vdp_sb
+    
+    # vdp score
+    vdp_score = vdp_score_avg + vdp_score_r + vdp_score_hr + vdp_score_rbi + vdp_score_sb
+    projections_df['vdp_score'] = vdp_score
+    
+    # adjust by position (col BP)
+    projections_df['vdp_position_discount'] = projections_df['summarized_pos'].map(lambda x: vdp_positional_discount_map.get(x, {})) 
+    projections_df['vdp_score_adj'] = projections_df['vdp_score'] - projections_df['vdp_position_discount']
+    
+    # sum/avg vdp for only the rostered players
+    total_vdp_rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]['vdp_score_adj'].sum()
+    avg_vdp_rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]['vdp_score_adj'].mean()
+    
+    # normalized(?) vdp score
+    projections_df['vdp_score_norm'] = ((projections_df['vdp_score_adj']/avg_vdp_rostered_players)**(125/100))
+    
+    total_normalized_vdp = projections_df[projections_df['vdp_score_norm'] >= 0]['vdp_score_norm'].sum()
+    
+    projections_df['vdp_dollars'] = round(projections_df['vdp_score_norm']/total_normalized_vdp * total_hitter_sal + 1, 1)
+        
+    return projections_df
+    
+    

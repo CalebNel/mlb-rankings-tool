@@ -37,5 +37,15 @@ summarized_position_map = {
 
 
 
+# final vdp scores get adjusted by these relative position scores. not sure where hardcoded numbers come from
+vdp_positional_discount_map = {
+    "C": -2.17,
+    "CI": -1.57,
+    "MI": -1.26,
+    "O": -2.01
+}
+
+
+
 if __name__ == '__main__':
     print(summarized_position_map())
