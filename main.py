@@ -51,5 +51,4 @@ if __name__ == '__main__':
     hitter_rankings_json_pretty = json.dumps(json.loads(hitter_rankings_json), indent=4)
     
     print(hitter_rankings_json)
-    print(hitter_rankings_json_pretty)
     
