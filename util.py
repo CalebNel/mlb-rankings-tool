@@ -1,4 +1,5 @@
 import pandas as pd
+import requests
 from constants import summarized_position_map
 
 def get_projections_df():
@@ -9,27 +10,55 @@ def get_projections_df():
     return projections_df
 
 def add_positions(projections_df):
-    # first join on mlb_id, then for those that don't have a match join on name
-    # should be cleaned up in prod
+    # add mapping of summarized positions
+    
+    projections_df['summarized_pos'] = projections_df['position'].map(lambda x: summarized_position_map.get(x, {}).get('summarized'))
+    
+    return projections_df
 
-    position_map = pd.read_csv('./data/position_map.csv')
+
+def fetch_and_flatten_json():
     
-    # goog sheet is boinked and duped and not fun so gotta scrub
-    projections_df['mlb_id'] = projections_df['mlb_id'].astype(str)
-    position_map['mlb_id'] = position_map['mlb_id'].astype(str)
-    position_map_mlb_id = position_map[['mlb_id', 'pos']].drop_duplicates()
-    position_map_name = position_map[['name', 'pos']].drop_duplicates()
+    projections_df_url = 'https://models.ftntools.com/api/fantasy/season_projections?season=2025&season_type=PRE&source=VLAD&league=MLB&key=6c9ceb8378934e24abb81011d777cf10'
+    response = requests.get(projections_df_url)
+    if response.status_code == 200:
+            data = response.json()
+
+            flattened_data = []
+            for player in data:
+                flat_player = {key: value for key, value in player.items() if key not in ["projections", "team"]}
+                
+                # Extract the stats from projections and add them as new keys
+                if "projections" in player:
+                    for stat in player["projections"]:
+                        flat_player[stat["stat"]] = stat["value"]
+                
+                # team name and team id        
+                if "team" in player and isinstance(player["team"], dict):
+                    flat_player["team"] = player["team"].get("name", None)
+                    flat_player["team_id"] = player["team"].get("id", None)
+                else:
+                    flat_player["team"] = None
+                    flat_player["team_id"] = None
+                    
+                flattened_data.append(flat_player)        
+                
+            return flattened_data  # List of flattened dictionaries
+    else:
+        raise ValueError(f"Error: Unable to fetch data. Status Code: {response.status_code}")
+
+
+def get_projections_df_api():
     
-    # join by id then by name where id doesn't exist
-    projections_df = pd.merge(projections_df, position_map_mlb_id, how='left', on='mlb_id')
-    projections_df = pd.merge(projections_df, position_map_name, how='left', on='name', suffixes=('', '_name')) # call this one pos_name
-    projections_df['pos'] = projections_df['pos'].fillna(projections_df['pos_name']) # if there's no match on mlb_id, fill in the pos_name
-    projections_df.drop(columns=['pos_name'], inplace=True)
+    projections_df_url = 'https://models.ftntools.com/api/fantasy/season_projections?season=2025&season_type=PRE&source=VLAD&league=MLB&key=6c9ceb8378934e24abb81011d777cf10'
+    response = requests.get(projections_df_url)
     
-    projections_df = projections_df.dropna(subset=['pos']) # drop bros that don't have a position - shouldn't be an issue in prod
-    
-    # add summarized position - catcher, corner-infield, middle-infield, outfield
-    #   chat gpt helped with dict mapping
-    projections_df['summarized_pos'] = projections_df['pos'].map(lambda x: summarized_position_map.get(x, {}).get('summarized'))
-    
+    # if status=good return data
+    if response.status_code == 200:
+        data = response.json()
+        # projections_df = pd.DataFrame(data)
+        projections_df = pd.json_normalize(data)
+    else:
+        print(f"Error: Unable to fetch data. Status Code: {response.status_code}")
+        
     return projections_df

@@ -55,16 +55,16 @@ def calc_projected_points(projections_df, inputs):
     # comes from user inputs
     sb_fact = inputs.get('scoring_coef').get('sb')
     rbi_fact = inputs.get('scoring_coef').get('rbi')
-    hr_fact = inputs.get('scoring_coef').get('hr')
-    r_fact = inputs.get('scoring_coef').get('r')
+    hr_fact = inputs.get('scoring_coef').get('homerun')
+    r_fact = inputs.get('scoring_coef').get('run')
     hit_fact = inputs.get('scoring_coef').get('hit')
     ab_fact = inputs.get('scoring_coef').get('ab')
     
     # get scores for each component of points then sum aggregate
     ab_score = projections_df['ab'] * ab_fact
     hits_score = round(projections_df['ab'] * projections_df['avg'] * hit_fact, 0)
-    runs_score = projections_df['r'] * r_fact
-    hr_score = projections_df['hr'] * hr_fact
+    runs_score = projections_df['run'] * r_fact
+    hr_score = projections_df['homerun'] * hr_fact
     rbi_score = projections_df['rbi'] * rbi_fact
     sb_score = projections_df['sb'] * sb_fact
     projections_df['points_raw'] = ab_score + hits_score + runs_score + hr_score + rbi_score + sb_score
@@ -95,16 +95,16 @@ def get_league_weighted_avg(projections_df, position_cutoff_map):
     total_hits = (rostered_players['avg']*rostered_players['ab']).sum()
     total_ab = rostered_players['ab'].sum()
     avg = total_hits/total_ab # need to weight avg by total ab, it's not just the mean of all batting averages
-    r = rostered_players['r'].mean()
-    hr = rostered_players['hr'].mean()
+    r = rostered_players['run'].mean()
+    hr = rostered_players['homerun'].mean()
     rbi = rostered_players['rbi'].mean()
     sb = rostered_players['sb'].mean()
     
     rostered_players_avgs = {
         'ab': ab,
         'avg': avg,
-        'r': r,
-        'hr': hr,
+        'run': r,
+        'homerun': hr,
         'rbi': rbi,
         'sb': sb
     }
@@ -119,15 +119,15 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal):
     # unpack league averages
     league_avg_ab = league_weighted_avg.get('ab')
     league_avg_avg = league_weighted_avg.get('avg')
-    league_avg_r = league_weighted_avg.get('r')
-    league_avg_hr = league_weighted_avg.get('hr')
+    league_avg_r = league_weighted_avg.get('run')
+    league_avg_hr = league_weighted_avg.get('homerun')
     league_avg_rbi = league_weighted_avg.get('rbi')
     league_avg_sb = league_weighted_avg.get('sb')
     
     # get raw scores that go into vdp - these get adjusted by some hardcoded values down the line
     raw_score_avg = (projections_df['avg'] - league_avg_avg) / league_avg_avg * projections_df['ab'] / league_avg_ab * 5
-    raw_score_r = (projections_df['r'] - league_avg_r) / league_avg_r * 1.6
-    raw_score_hr = (projections_df['hr'] - league_avg_hr) / league_avg_hr * 1
+    raw_score_r = (projections_df['run'] - league_avg_r) / league_avg_r * 1.6
+    raw_score_hr = (projections_df['homerun'] - league_avg_hr) / league_avg_hr * 1
     raw_score_rbi = (projections_df['rbi'] - league_avg_rbi) / league_avg_rbi * 1.4
     raw_score_sb = (projections_df['sb'] - league_avg_sb) / league_avg_sb * 0.6
     
@@ -161,13 +161,16 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal):
     projections_df['vdp_score_adj'] = projections_df['vdp_score'] - projections_df['vdp_position_discount']
     
     # sum/avg vdp for only the rostered players
-    total_vdp_rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]['vdp_score_adj'].sum()
     avg_vdp_rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]['vdp_score_adj'].mean()
     
     # normalized(?) vdp score
-    projections_df['vdp_score_norm'] = ((projections_df['vdp_score_adj']/avg_vdp_rostered_players)**(125/100))
+    #   In their workbook one calc (BQ4) does an exponential, but the final calc (CQ4) is a multiple
+    #   exponential makes more sense, but it doesn't work with negative numbers so maybe that's why they switched to multiplication? Nothing is clear
+    #   regardless, the total exponential calc is needed for the `total_normalized_vdp`, but the multiplication is used for the final calc (prob so that the neg numbers flow through)
+    projections_df['vdp_score_norm_initial'] = ((projections_df['vdp_score_adj']/avg_vdp_rostered_players)**(125/100)) # exponential - is used to calculate the total-score factor but not final number
+    projections_df['vdp_score_norm'] = ((projections_df['vdp_score_adj']/avg_vdp_rostered_players)*(125/100)) # multiplication - is used for the final number
     
-    total_normalized_vdp = projections_df[projections_df['vdp_score_norm'] >= 0]['vdp_score_norm'].sum()
+    total_normalized_vdp = projections_df[projections_df['vdp_score_norm_initial'] >= 0]['vdp_score_norm_initial'].sum()
     
     projections_df['vdp_dollars'] = round(projections_df['vdp_score_norm']/total_normalized_vdp * total_hitter_sal + 1, 1)
         

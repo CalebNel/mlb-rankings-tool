@@ -27,8 +27,8 @@ user_inputs = {
     "scoring_coef": {
         "sb": 5,
         "rbi": 2,
-        "hr": 6,
-        "r": 2,
+        "homerun": 6,
+        "run": 2,
         "hit": 4,
         "ab": -1
     }

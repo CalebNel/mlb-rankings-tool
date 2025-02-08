@@ -2,19 +2,23 @@ import pandas as pd
 
 import calc_factors as factors
 import util
+import json
 from inputs import user_inputs
 
 print(user_inputs)
 
-# TODO: figure out the fuckery with multiple positions
+# TODO: figure out fuckery with multiple positions 
 #       add logic for league type (mixed/al/nl)
 
 def get_hitter_rankings(projections_df, debug=False):
     
+    # add positions - both reg position and summarized positions should be with projections in prod
+    projections_df = util.add_positions(projections_df)
+    
     # get total "free money" spent on hitters
     total_hitter_sal = factors.calc_total_hitter_budget(user_inputs)
 
-    # get cutline score - col AE in workbook
+    # get projectd points - col AE in workbook
     projections_df = factors.calc_projected_points(projections_df, user_inputs)
 
     # get position rank cutoffs - cols AN:AU in workbook
@@ -29,18 +33,23 @@ def get_hitter_rankings(projections_df, debug=False):
     if debug:
         projections_df.to_csv('./data/projections_debug.csv', index=False)
 
-    return projections_df[['mlb_id', 'name', 'vdp_dollars']]
+    # return projections_df[['id', 'name', 'vdp_dollars']]
+    return projections_df[['id', 'vdp_dollars']]
 
 
 
 
 if __name__ == '__main__':
     
-    # get raw projections - cols I:Y in workbook - will be fed from API in prod
-    projections_df = util.get_projections_df()
-
-    # add positions - both reg position and summarized positions should be with projections in prod
-    projections_df = util.add_positions(projections_df)
+    # mimic how projections will be returned from FE
+    projections_flattened_json = util.fetch_and_flatten_json()
+    projections_df = pd.DataFrame(projections_flattened_json)
+    projections_df = projections_df[pd.isna(projections_df['bf'])].reset_index(drop=True) # remove pitchers
     
-    print(get_hitter_rankings(projections_df))
+    hitter_rankings_df = get_hitter_rankings(projections_df)
+    hitter_rankings_json = hitter_rankings_df.to_json(orient="records")
+    hitter_rankings_json_pretty = json.dumps(json.loads(hitter_rankings_json), indent=4)
+    
+    print(hitter_rankings_json)
+    print(hitter_rankings_json_pretty)
     
