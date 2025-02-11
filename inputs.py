@@ -24,13 +24,22 @@ user_inputs = {
         "mult_position_3plus": 0,
         "mult_position_4plus": 0
     },
-    "scoring_coef": {
+    "hitter_scoring_coef": {
         "sb": 5,
         "rbi": 2,
         "homerun": 6,
         "run": 2,
         "hit": 4,
         "ab": -1
+    },
+    "pitcher_scoring_coef": {
+        "ip": 3,
+        "win": 6,
+        "save": 8,
+        "er": -2,
+        "k_allowed": 1,
+        "bb_allowed": -1,
+        "hit_allowed": -1,
     }
 }
 

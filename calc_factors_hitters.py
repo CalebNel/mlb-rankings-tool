@@ -14,11 +14,9 @@ def calc_total_hitter_budget(inputs):
     total_hitter_sal = total_hitter_sal_raw - total_hitters*inputs.get('teams')
     
     return total_hitter_sal
-    
-    
 
 
-def get_position_cutoff_map(inputs):
+def get_position_cutoff_map_hitters(inputs):
     
     # num teams
     num_teams = inputs.get('teams')
@@ -47,18 +45,18 @@ def get_position_cutoff_map(inputs):
         "O": o_cutoff
     }
     
-    print(position_cutoff_map)
+    # print(position_cutoff_map)
     return(position_cutoff_map)
     
 
-def calc_projected_points(projections_df, inputs):
+def calc_projected_points_hitter(projections_df, inputs):
     # comes from user inputs
-    sb_fact = inputs.get('scoring_coef').get('sb')
-    rbi_fact = inputs.get('scoring_coef').get('rbi')
-    hr_fact = inputs.get('scoring_coef').get('homerun')
-    r_fact = inputs.get('scoring_coef').get('run')
-    hit_fact = inputs.get('scoring_coef').get('hit')
-    ab_fact = inputs.get('scoring_coef').get('ab')
+    sb_fact = inputs.get('hitter_scoring_coef').get('sb')
+    rbi_fact = inputs.get('hitter_scoring_coef').get('rbi')
+    hr_fact = inputs.get('hitter_scoring_coef').get('homerun')
+    r_fact = inputs.get('hitter_scoring_coef').get('run')
+    hit_fact = inputs.get('hitter_scoring_coef').get('hit')
+    ab_fact = inputs.get('hitter_scoring_coef').get('ab')
     
     # get scores for each component of points then sum aggregate
     ab_score = projections_df['ab'] * ab_fact
@@ -74,9 +72,8 @@ def calc_projected_points(projections_df, inputs):
     
     return projections_df
     
-    
 
-def get_league_weighted_avg(projections_df, position_cutoff_map):
+def get_league_weighted_avg_hitters(projections_df, position_cutoff_map):
     # first rank players by proj pts grouped by their summarized position
     # next filter out players below the position cutoff
     # lastly take the average stats of these players weighted by pa
@@ -177,3 +174,5 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal):
     return projections_df
     
     
+
+

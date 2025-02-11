@@ -46,6 +46,37 @@ vdp_positional_discount_map = {
 }
 
 
+# These are used to calc pitcher vdp. They are where "league average for rostered players" should be but they are just hardcoded so idk
+#   I think it's just a normalization, so subtract league average divided by the standard dev. but not sure
+#   sheet: `Pitcher VDP$` columns AT:AX
+#
+pitcher_hardcoded_factors = {
+    "win": {
+        "avg": 9.168625,
+        "denom": 4.088213
+    },
+    "save": {
+        "avg": 6.518400,
+        "denom": 11.789446
+    },
+    "era": {
+        "avg": 3.543764,
+        "denom": 0.998204
+    },
+    "k": {
+        "avg": 147.802828,
+        "denom": 61.052144
+    },
+    "whip": {
+        "avg": 1.171002,
+        "denom": 0.314449
+    },
+    "ip": {
+        "avg": 138.4
+    }
+}
+
+
 
 if __name__ == '__main__':
     print(summarized_position_map())
