@@ -1,0 +1,4 @@
+curl -X POST "https://xchi6up2ed.execute-api.us-east-1.amazonaws.com/dev/calculate-rankings" \
+-H "Content-Type: application/json" \
+-H "x-api-key: v0cpRgpgQu48VrpF9Ito03b4qkuMVePN8TgRFcwV" \
+-d @$(pwd)/src/example_post_requests/event.json

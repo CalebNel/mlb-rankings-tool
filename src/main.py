@@ -1,17 +1,14 @@
 import pandas as pd
 
-import calc_factors_hitters as hitters
-import calc_factors_pitchers as pitchers
-import util
+import src.calc_factors_hitters as hitters
+import src.calc_factors_pitchers as pitchers
+import src.util as util
 import json
-from inputs import user_inputs
-
-print(user_inputs)
 
 # TODO: figure out fuckery with multiple positions 
 #       add logic for league type (mixed/al/nl)
 
-def get_hitter_rankings(projections_df, debug=False):
+def get_hitter_rankings(projections_df, user_inputs, debug=False):
     
     # filter only hitters
     projections_df = projections_df[pd.isna(projections_df['bf'])].reset_index(drop=True) # remove pitchers
@@ -38,9 +35,9 @@ def get_hitter_rankings(projections_df, debug=False):
         projections_df.to_csv('./data/projections_debug_hitter.csv', index=False)
 
     # return projections_df[['id', 'name', 'vdp_dollars']]
-    return projections_df[['id', 'vdp_dollars']]
+    return projections_df[['id', 'position', 'vdp_dollars']]
 
-def get_pitcher_rankings(projections_df, debug=False):
+def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     
     # filter only pitchers
     projections_df = projections_df[projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
@@ -62,12 +59,15 @@ def get_pitcher_rankings(projections_df, debug=False):
         projections_df.to_csv('./data/projections_debug_pitcher.csv', index=False)
 
     # return projections_df[['id', 'name', 'vdp_dollars']]
-    return projections_df[['id', 'vdp_dollars']]
+    return projections_df[['id', 'position', 'vdp_dollars']]
 
 
 
 
 if __name__ == '__main__':
+    
+    from inputs import user_inputs
+    print(user_inputs)
     
     # mimic how projections will be returned from FE
     projections_flattened_json = util.fetch_and_flatten_json()

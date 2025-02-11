@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from constants import summarized_position_map
+from src.constants import summarized_position_map
 
 def get_projections_df():
     # get raw projections (from api in prod, csv in this workbook) - cols I:Y in workbook

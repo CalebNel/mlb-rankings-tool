@@ -1,5 +1,5 @@
 import pandas as pd
-from constants import summarized_position_map, vdp_positional_discount_map
+from src.constants import summarized_position_map, vdp_positional_discount_map
 
 
 def calc_total_hitter_budget(inputs):

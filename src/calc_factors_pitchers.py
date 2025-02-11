@@ -1,5 +1,5 @@
 import pandas as pd
-from constants import summarized_position_map, vdp_positional_discount_map, pitcher_hardcoded_factors
+from src.constants import summarized_position_map, vdp_positional_discount_map, pitcher_hardcoded_factors
 
     
 def calc_total_pitcher_budget(inputs):
