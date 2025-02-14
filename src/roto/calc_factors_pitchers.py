@@ -1,5 +1,5 @@
 import pandas as pd
-from src.constants import summarized_position_map, vdp_positional_discount_map, pitcher_hardcoded_factors
+from src.util.constants import summarized_position_map, vdp_positional_discount_map, pitcher_hardcoded_factors
 
     
 def calc_total_pitcher_budget(inputs):
@@ -184,7 +184,7 @@ def calc_vdp_pitchers(projections_df, position_cutoff_map, total_pitcher_sal):
     # Sum of all positive VDP (i wouldn't do it this way but following the workbook)
     total_normalized_vdp = projections_df[projections_df['vdp_score_norm_initial'] >= 0]['vdp_score_norm_initial'].sum()
     
-    projections_df['vdp_dollars'] = round(projections_df['vdp_score_norm_initial']/total_normalized_vdp * total_pitcher_sal + 1, 1)
+    projections_df['value'] = round(projections_df['vdp_score_norm_initial']/total_normalized_vdp * total_pitcher_sal + 1, 1)
     # print(projections_df)
     
     return projections_df

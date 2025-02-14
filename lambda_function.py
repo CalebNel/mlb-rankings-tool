@@ -1,28 +1,34 @@
 import json
 import pandas as pd
-import os
 
-from src import main
-from src import inputs
-from src import util
+from src.roto import main
+from src.points import main_pts
 
 def lambda_handler(event, context):
     
-    print(event)
-    
+    # unpack event
     projections_json = event.get('projections')
     user_inputs = event.get('user_inputs')
-    
+    league_type = user_inputs.get('league_type')
     projections_df = pd.DataFrame(projections_json)
     
-    hitter_rankings = main.get_hitter_rankings(projections_df, user_inputs)
-    pitcher_rankings = main.get_pitcher_rankings(projections_df, user_inputs)
-    
-    hitter_payload = json.loads(hitter_rankings.to_json(orient="records"))
-    pitcher_payload = json.loads(pitcher_rankings.to_json(orient="records"))
-    
-    payload = hitter_payload + pitcher_payload
-    
+    # route to different logic depending on if it's a points or a roto league
+    if league_type == 'points':
+        rankings = main_pts.get_points_league_rankings(projections_df, user_inputs)
+        payload = json.loads(rankings.to_json(orient="records"))
+    elif league_type == 'roto':
+        hitter_rankings = main.get_hitter_rankings(projections_df, user_inputs)
+        pitcher_rankings = main.get_pitcher_rankings(projections_df, user_inputs)
+        
+        hitter_payload = json.loads(hitter_rankings.to_json(orient="records"))
+        pitcher_payload = json.loads(pitcher_rankings.to_json(orient="records"))
+        
+        payload = hitter_payload + pitcher_payload
+    else:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({"error": "Invalid league_type. Must be 'points' or 'roto'."})
+        }
 
     return {
         'statusCode': 200,
@@ -30,26 +36,11 @@ def lambda_handler(event, context):
     }
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     
-#     user_inputs = inputs.user_inputs
-    
-#     # mimic how projections will be returned from FE
-#     projections_flattened_json = util.fetch_and_flatten_json()
-#     event = {
-#         "projections": projections_flattened_json,
-#         "user_inputs": user_inputs
-#     }
-#     print(event)
-    
-#     # Define the file path for the Downloads folder
-#     downloads_path = os.path.expanduser("~/Downloads/event.json")
-
-#     # Save the event to a JSON file
-#     with open(downloads_path, "w") as f:
-#         json.dump(event, f, indent=4)
-    
-#     print(lambda_handler(event, context=None))
-
-    
+    file_path = "./src/util/example_post_requests/event.json"
+    with open(file_path, "r") as file:
+        event = json.load(file)
+        
+    print(lambda_handler(event, context=None))
     

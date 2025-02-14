@@ -1,5 +1,5 @@
 import pandas as pd
-from src.constants import summarized_position_map, vdp_positional_discount_map
+from src.util.constants import summarized_position_map, vdp_positional_discount_map
 
 
 def calc_total_hitter_budget(inputs):
@@ -169,7 +169,7 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal):
     
     total_normalized_vdp = projections_df[projections_df['vdp_score_norm_initial'] >= 0]['vdp_score_norm_initial'].sum()
     
-    projections_df['vdp_dollars'] = round(projections_df['vdp_score_norm']/total_normalized_vdp * total_hitter_sal + 1, 1)
+    projections_df['value'] = round(projections_df['vdp_score_norm']/total_normalized_vdp * total_hitter_sal + 1, 1)
         
     return projections_df
     

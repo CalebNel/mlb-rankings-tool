@@ -16,7 +16,8 @@ user_inputs = {
         "mi": 1,
         "o": 5,
         "u": 1,
-        "p": 9
+        "p": 9,
+        "b": 5
     },
     "cutline_penalties": {
         "dh_penalty": 0,
@@ -46,3 +47,6 @@ user_inputs = {
 
 if __name__ == '__main__':
     print(user_inputs)
+    
+    # "marginal_value_threshold": [0.05, 0.1, 0.25, 0.5, 0.75, 1.0],
+    # "marginal_value_threshold": [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],

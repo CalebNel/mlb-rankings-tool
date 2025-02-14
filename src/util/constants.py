@@ -32,7 +32,9 @@ summarized_position_map = {
     "UT": {"detailed": "O", "summarized": "O"},
     "UT, P": {"detailed": "O", "summarized": "O"},
     "1B, 2B, SS": {"detailed": "12S", "summarized": "MI"},
-    "2B, 3B, OF": {"detailed": "23O", "summarized": "CI"}
+    "2B, 3B, OF": {"detailed": "23O", "summarized": "CI"},
+    "SP": {"detailed": "SP", "summarized": "P"},
+    "RP": {"detailed": "RP", "summarized": "P"}
 }
 
 

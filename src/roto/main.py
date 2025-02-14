@@ -1,9 +1,10 @@
 import pandas as pd
-
-import src.calc_factors_hitters as hitters
-import src.calc_factors_pitchers as pitchers
-import src.util as util
 import json
+
+from src.roto import calc_factors_hitters as hitters
+from src.roto import calc_factors_pitchers as pitchers
+from src.util import util as util
+
 
 # TODO: figure out fuckery with multiple positions 
 #       add logic for league type (mixed/al/nl)
@@ -34,8 +35,7 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
     if debug:
         projections_df.to_csv('./data/projections_debug_hitter.csv', index=False)
 
-    # return projections_df[['id', 'name', 'vdp_dollars']]
-    return projections_df[['id', 'position', 'vdp_dollars']]
+    return projections_df[['id', 'position', 'value']]
 
 def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     
@@ -58,15 +58,14 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     if debug:
         projections_df.to_csv('./data/projections_debug_pitcher.csv', index=False)
 
-    # return projections_df[['id', 'name', 'vdp_dollars']]
-    return projections_df[['id', 'position', 'vdp_dollars']]
+    return projections_df[['id', 'position', 'value']]
 
 
 
 
 if __name__ == '__main__':
     
-    from inputs import user_inputs
+    from src.util.inputs import user_inputs
     print(user_inputs)
     
     # mimic how projections will be returned from FE
