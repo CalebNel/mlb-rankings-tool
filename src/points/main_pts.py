@@ -2,16 +2,13 @@ import pandas as pd
 import json
 
 from src.points import calc_value as value
-from util import util as util
+from src.util import util as util
 
 
 # TODO: figure out fuckery with multiple positions 
 #       add logic for league type (mixed/al/nl)
 
 def get_points_league_rankings(projections_df, user_inputs, debug=False):
-    
-    # filter only hitters
-    # projections_df = projections_df[pd.isna(projections_df['bf'])].reset_index(drop=True) # remove pitchers
     
     # add positions - both reg position and summarized positions should be with projections in prod
     projections_df = util.add_positions(projections_df)
