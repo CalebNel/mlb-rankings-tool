@@ -66,10 +66,10 @@ def get_league_weighted_avg_hitters(projections_df, position_cutoff_map):
     # calc league averages for rostered players
     ab = rostered_players['ab'].mean()
     total_hits = (rostered_players['avg']*rostered_players['ab']).sum()
+    total_onbase = (rostered_players['obp']*rostered_players['ab']).sum()
     total_ab = rostered_players['ab'].sum()
-    total_walks = rostered_players['bb'].sum()
     avg = total_hits/total_ab # need to weight avg by total ab, it's not just the mean of all batting averages
-    obp = (total_hits+total_walks)/total_ab # need to weight avg by total ab, it's not just the mean of all batting averages
+    obp = (total_onbase)/total_ab # need to weight avg by total ab, it's not just the mean of all batting averages
     r = rostered_players['run'].mean()
     hr = rostered_players['homerun'].mean()
     rbi = rostered_players['rbi'].mean()
