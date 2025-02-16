@@ -20,9 +20,6 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
     # get total "free money" spent on hitters
     total_hitter_sal = hitters.calc_total_hitter_budget(user_inputs)
 
-    # get projectd points - col AE in workbook
-    projections_df = hitters.calc_projected_points_hitter(projections_df, user_inputs)
-
     # get position rank cutoffs - cols AN:AU in workbook
     position_cutoff_map = hitters.get_position_cutoff_map_hitters(user_inputs)
 
@@ -30,7 +27,7 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
     league_weighted_avg, projections_df = hitters.get_league_weighted_avg_hitters(projections_df, position_cutoff_map)
     
     # get vdp from stats + league weighted average
-    projections_df = hitters.calc_vdp(projections_df, league_weighted_avg, total_hitter_sal)
+    projections_df = hitters.calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
     
     if debug:
         projections_df.to_csv('./data/projections_debug_hitter.csv', index=False)

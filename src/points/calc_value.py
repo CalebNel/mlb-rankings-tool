@@ -54,27 +54,6 @@ def get_value_ranks(inputs):
     
     return position_rank_dict, total_rank_dict
 
-
-def get_raw_points(projections_df):
-    # placeholder until `fpts` gets passed from FE 
-    
-    ab_score = projections_df['ab'].fillna(0) * -1
-    hits_score = round(projections_df['ab'].fillna(0) * projections_df['avg'].fillna(0) * 4, 0)
-    runs_score = projections_df['run'].fillna(0) * 2
-    hr_score = projections_df['homerun'].fillna(0) * 6
-    rbi_score = projections_df['rbi'].fillna(0) * 2
-    sb_score = projections_df['sb'].fillna(0) * 5
-    ip_score = projections_df['ip'].fillna(0) * 3   
-    win_score = projections_df['win'].fillna(0) * 6
-    save_score = projections_df['save'].fillna(0) * 8
-    er_score = projections_df['er'].fillna(0) * -2
-    k_score = projections_df['k_allowed'].fillna(0) * 1
-    bb_score = projections_df['bb_allowed'].fillna(0) * -1
-    hit_score = projections_df['hit_allowed'].fillna(0) * -1
-    projections_df['fpts'] = ab_score + hits_score + runs_score + hr_score + rbi_score + sb_score + ip_score + win_score + save_score + er_score + k_score + bb_score + hit_score
-    
-    return projections_df
-
 def get_threshold_values(projections_df, position_rank_dict, total_rank_dict):
     
     # rank points

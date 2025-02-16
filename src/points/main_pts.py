@@ -13,9 +13,6 @@ def get_points_league_rankings(projections_df, user_inputs, debug=False):
     # add positions - both reg position and summarized positions should be with projections in prod
     projections_df = util.add_positions(projections_df)
     
-    # calc raw points - comment out once connected to FE
-    projections_df = value.get_raw_points(projections_df)
-    
     # return the ranks for each position (and total rostered player) groupings that we calculate marginal value at
     position_rank_dict, total_rank_dict = value.get_value_ranks(user_inputs)
     

@@ -47,6 +47,26 @@ vdp_positional_discount_map = {
     "O": -2.01
 }
 
+# these are used as a stat-importance adjustment (so high SB guys don't get nerfed) - don't really understand why though because in roto high SB guys should be getting nerfed
+sgp_hitter_stat_map = {
+    "avg": 1.11,
+    "obp": 1.11,
+    "r": 1.05,
+    "homerun": 1.0,
+    "rbi": 1.02,
+    "sb": 2.2
+}
+
+# idk why this is in there. factors that are multiplied by raw stat-adjustment (BE4 and down)
+sgp_hitter_stat_adjustment = {
+    "avg": 5,
+    "obp": 5,
+    "r": 1.6,
+    "homerun": 1.0,
+    "rbi": 1.4,
+    "sb": 0.6
+}
+
 
 # These are used to calc pitcher vdp. They are where "league average for rostered players" should be but they are just hardcoded so idk
 #   I think it's just a normalization, so subtract league average divided by the standard dev. but not sure
