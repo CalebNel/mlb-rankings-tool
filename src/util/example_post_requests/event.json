@@ -31311,7 +31311,7 @@
         "p": 9,
         "b": 5
       },
-      "hitter_cats": ["r", "rbi", "sb", "avg", "homerun"],
+      "hitter_cats": ["r", "rbi", "sb", "double", "homerun"],
       "pitcher_cats": ["win", "save", "era", "k", "whip"],
       "cutline_penalties": {
         "dh_penalty": 0,

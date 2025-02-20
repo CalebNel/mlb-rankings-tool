@@ -50,7 +50,8 @@ def get_value_ranks(inputs):
     num_starting = positions.get('C') + positions.get('CI') + positions.get('MI') + positions.get('O') + positions.get('P')
     num_b = inputs.get('num_slots').get('b') * num_teams
     
-    total_rank_dict = [round((num_starting + num_b) * pct)+1 for pct in marginal_value_threshold]
+    # total_rank_dict = [round((num_starting + num_b) * pct)+1 for pct in marginal_value_threshold]
+    total_rank_dict = [0] * len(marginal_value_threshold)
     
     return position_rank_dict, total_rank_dict
 

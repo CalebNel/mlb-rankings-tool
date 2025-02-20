@@ -74,6 +74,15 @@ def get_league_weighted_avg_hitters(projections_df, position_cutoff_map):
     hr = rostered_players['homerun'].mean()
     rbi = rostered_players['rbi'].mean()
     sb = rostered_players['sb'].mean()
+    k = rostered_players['k'].mean()
+    # tb = rostered_players['tb'].mean()
+    single = rostered_players['single'].mean()
+    double = rostered_players['double'].mean()
+    triple = rostered_players['triple'].mean()
+    hit = single + double + triple + hr
+    cs = rostered_players['cs'].mean()
+    pa = rostered_players['pa'].mean()
+    bb = rostered_players['bb'].mean()
     
     rostered_players_avgs = {
         'ab': ab,
@@ -82,7 +91,22 @@ def get_league_weighted_avg_hitters(projections_df, position_cutoff_map):
         'run': r,
         'homerun': hr,
         'rbi': rbi,
-        'sb': sb
+        'sb': sb,
+        
+        # 'slg': slg,
+        # 'ops': ops,
+        'bb': bb,
+        'k': k,
+        # 'tb': tb,
+        "hit": hit,
+        # "bb/k": bb_per_k,
+        "cs": cs,
+        "pa": pa,
+        "single": single,
+        "double": double,
+        "triple": triple,
+        
+        
     }
     
     return rostered_players_avgs, projections_df
@@ -103,14 +127,34 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
     league_avg_hr = league_weighted_avg.get('homerun')
     league_avg_rbi = league_weighted_avg.get('rbi')
     league_avg_sb = league_weighted_avg.get('sb')
+    league_avg_bb = league_weighted_avg.get('bb')
+    league_avg_k = league_weighted_avg.get('k')
+    # league_avg_tb = league_weighted_avg.get('tb')
+    league_avg_hit = league_weighted_avg.get('hit')
+    league_avg_cs = league_weighted_avg.get('cs')
+    league_avg_pa = league_weighted_avg.get('pa')
+    league_avg_single = league_weighted_avg.get('single')
+    league_avg_double = league_weighted_avg.get('double')
+    league_avg_triple = league_weighted_avg.get('triple')
     
     # get raw scores that go into vdp - these get adjusted by some hardcoded values down the line
+    #       Need to generalize these steps but faster to just list them all out for now
     raw_score_avg = (projections_df['avg'] - league_avg_avg) / league_avg_avg * projections_df['ab'] / league_avg_ab * sgp_hitter_stat_adjustment.get('avg')
     raw_score_obp = (projections_df['obp'] - league_avg_obp) / league_avg_obp * projections_df['ab'] / league_avg_ab * sgp_hitter_stat_adjustment.get('obp')
     raw_score_r = (projections_df['run'] - league_avg_r) / league_avg_r * sgp_hitter_stat_adjustment.get('r')
     raw_score_hr = (projections_df['homerun'] - league_avg_hr) / league_avg_hr * sgp_hitter_stat_adjustment.get('homerun')
     raw_score_rbi = (projections_df['rbi'] - league_avg_rbi) / league_avg_rbi * sgp_hitter_stat_adjustment.get('rbi')
     raw_score_sb = (projections_df['sb'] - league_avg_sb) / league_avg_sb * sgp_hitter_stat_adjustment.get('sb')
+    raw_score_bb = (projections_df['bb'] - league_avg_bb) / league_avg_bb * sgp_hitter_stat_adjustment.get('bb')
+    raw_score_k = (projections_df['k'] - league_avg_k) / league_avg_k * sgp_hitter_stat_adjustment.get('k')
+    # raw_score_tb = (projections_df['tb'] - league_avg_tb) / league_avg_tb * sgp_hitter_stat_adjustment.get('tb')
+    raw_score_hit = (projections_df['hit'] - league_avg_hit) / league_avg_hit * sgp_hitter_stat_adjustment.get('hit')
+    raw_score_cs = (projections_df['cs'] - league_avg_cs) / league_avg_cs * sgp_hitter_stat_adjustment.get('cs')
+    raw_score_pa = (projections_df['pa'] - league_avg_pa) / league_avg_pa * sgp_hitter_stat_adjustment.get('pa')
+    raw_score_single = (projections_df['single'] - league_avg_single) / league_avg_single * sgp_hitter_stat_adjustment.get('single')
+    raw_score_double = (projections_df['double'] - league_avg_double) / league_avg_double * sgp_hitter_stat_adjustment.get('double')
+    raw_score_triple = (projections_df['triple'] - league_avg_triple) / league_avg_triple * sgp_hitter_stat_adjustment.get('triple')
+    raw_score_ab = (projections_df['ab'] - league_avg_ab) / league_avg_ab * sgp_hitter_stat_adjustment.get('ab')
     
     # max raw scores
     league_max_vdp_avg = max(raw_score_avg)
@@ -119,6 +163,16 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
     league_max_vdp_hr = max(raw_score_hr)
     league_max_vdp_rbi = max(raw_score_rbi)
     league_max_vdp_sb = max(raw_score_sb)
+    league_max_vdp_ab = max(raw_score_ab)
+    league_max_vdp_bb = max(raw_score_bb)
+    league_max_vdp_k = max(raw_score_k)
+    # league_max_vdp_tb = max(raw_score_tb)
+    league_max_vdp_hit = max(raw_score_hit)
+    league_max_vdp_cs = max(raw_score_cs)
+    league_max_vdp_pa = max(raw_score_pa)
+    league_max_vdp_single = max(raw_score_single)
+    league_max_vdp_double = max(raw_score_double)
+    league_max_vdp_triple = max(raw_score_triple)
     
     # harcoded mult factors - couldn't get a good answer for how these are calc'd
     mult_fact_avg = sgp_hitter_stat_map.get('avg')
@@ -127,6 +181,16 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
     mult_fact_hr = sgp_hitter_stat_map.get('homerun')
     mult_fact_rbi = sgp_hitter_stat_map.get('rbi')
     mult_fact_sb = sgp_hitter_stat_map.get('sb')
+    mult_fact_ab = sgp_hitter_stat_map.get('ab')
+    mult_fact_bb = sgp_hitter_stat_map.get('bb')
+    mult_fact_k = sgp_hitter_stat_map.get('k')
+    # mult_fact_tb = sgp_hitter_stat_map.get('tb')
+    mult_fact_hit = sgp_hitter_stat_map.get('hit')
+    mult_fact_cs = sgp_hitter_stat_map.get('cs')
+    mult_fact_pa = sgp_hitter_stat_map.get('pa')
+    mult_fact_single = sgp_hitter_stat_map.get('single')
+    mult_fact_double = sgp_hitter_stat_map.get('double')
+    mult_fact_triple = sgp_hitter_stat_map.get('triple')
     
     # adjusted vdp scores - get them for all stats, then only add the relevant ones in next step
     #   use dict to make things dynamic
@@ -136,7 +200,18 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
         "r": raw_score_r * mult_fact_r / league_max_vdp_r,
         "homerun": raw_score_hr * mult_fact_hr / league_max_vdp_hr,
         "rbi": raw_score_rbi * mult_fact_rbi / league_max_vdp_rbi,
-        "sb": raw_score_sb * mult_fact_sb / league_max_vdp_sb
+        "sb": raw_score_sb * mult_fact_sb / league_max_vdp_sb,
+        
+        "ab": raw_score_ab * mult_fact_ab / league_max_vdp_ab,
+        "bb": raw_score_bb * mult_fact_bb / league_max_vdp_bb,
+        "k": raw_score_k * mult_fact_k / league_max_vdp_k,
+        # "tb": raw_score_tb * mult_fact_tb / league_max_vdp_tb,
+        "hit": raw_score_hit * mult_fact_hit / league_max_vdp_hit,
+        "cs": raw_score_cs * mult_fact_cs / league_max_vdp_cs,
+        "pa": raw_score_pa * mult_fact_pa / league_max_vdp_pa,
+        "single": raw_score_single * mult_fact_single / league_max_vdp_single,
+        "double": raw_score_double * mult_fact_double / league_max_vdp_double,
+        "triple": raw_score_triple * mult_fact_triple / league_max_vdp_triple
     }
     
     # take some of VDP score for the given roto categories

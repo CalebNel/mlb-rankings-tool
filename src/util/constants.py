@@ -54,7 +54,19 @@ sgp_hitter_stat_map = {
     "r": 1.05,
     "homerun": 1.0,
     "rbi": 1.02,
-    "sb": 2.2
+    "sb": 2.2,
+    
+    'ab': 0.8,
+    'bb': 1,
+    'k': 1,
+    'tb': 1,
+    "hit": 1,
+    # "bb/k": 1,
+    "cs": 0.8,
+    "pa": 0.8,
+    "single": 1,
+    "double": 1.1,
+    "triple": 1.2
 }
 
 # idk why this is in there. factors that are multiplied by raw stat-adjustment (BE4 and down)
@@ -64,7 +76,19 @@ sgp_hitter_stat_adjustment = {
     "r": 1.6,
     "homerun": 1.0,
     "rbi": 1.4,
-    "sb": 0.6
+    "sb": 0.6,
+    
+    'ab': 1,
+    'bb': 1,
+    'k': 1,
+    'tb': 1,
+    "hit": 1,
+    # "bb/k": 1,
+    "cs": 1,
+    "pa": 1,
+    "single": 1,
+    "double": 1,
+    "triple": 1,
 }
 
 
