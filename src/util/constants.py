@@ -92,35 +92,58 @@ sgp_hitter_stat_adjustment = {
 }
 
 
+sgp_pitcher_stat_map = {
+    "win": 1.01,
+    "era": 1.03,
+    "save": 2.96,
+    "k_allowed": 1.01,
+    "whip": 1.06,
+    
+    'qs': 1.01,
+    'hold': 1.05
+    
+    # 'ab': 0.8,
+    # 'bb': 1,
+    # 'k': 1,
+    # 'tb': 1,
+    # "hit": 1,
+    # # "bb/k": 1,
+    # "cs": 0.8,
+    # "pa": 0.8,
+    # "single": 1,
+    # "double": 1.1,
+    # "triple": 1.2
+}
+
 # These are used to calc pitcher vdp. They are where "league average for rostered players" should be but they are just hardcoded so idk
 #   I think it's just a normalization, so subtract league average divided by the standard dev. but not sure
 #   sheet: `Pitcher VDP$` columns AT:AX
 #
-pitcher_hardcoded_factors = {
-    "win": {
-        "avg": 9.168625,
-        "denom": 4.088213
-    },
-    "save": {
-        "avg": 6.518400,
-        "denom": 11.789446
-    },
-    "era": {
-        "avg": 3.543764,
-        "denom": 0.998204
-    },
-    "k": {
-        "avg": 147.802828,
-        "denom": 61.052144
-    },
-    "whip": {
-        "avg": 1.171002,
-        "denom": 0.314449
-    },
-    "ip": {
-        "avg": 138.4
-    }
-}
+# pitcher_hardcoded_factors = {
+#     "win": {
+#         "avg": 9.168625,
+#         "denom": 4.088213
+#     },
+#     "save": {
+#         "avg": 6.518400,
+#         "denom": 11.789446
+#     },
+#     "era": {
+#         "avg": 3.543764,
+#         "denom": 0.998204
+#     },
+#     "k": {
+#         "avg": 147.802828,
+#         "denom": 61.052144
+#     },
+#     "whip": {
+#         "avg": 1.171002,
+#         "denom": 0.314449
+#     },
+#     "ip": {
+#         "avg": 138.4
+#     }
+# }
 
 
 

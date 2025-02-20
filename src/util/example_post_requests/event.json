@@ -31292,27 +31292,27 @@
       }
     ],
     "user_inputs": {
-      "teams": 15,
+      "teams": 12,
       "league_type": "roto",
       "budget": 260,
       "type": "Mixed",
       "hitting_budget_pct": 0.64,
       "marginal_value_threshold": [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
       "num_slots": {
-        "c": 2,
+        "c": 1,
         "1b": 1,
         "2b": 1,
         "3b": 1,
         "ss": 1,
-        "ci": 1,
-        "mi": 1,
-        "o": 5,
+        "ci": 0,
+        "mi": 0,
+        "o": 3,
         "u": 1,
-        "p": 9,
-        "b": 5
+        "p": 8,
+        "b": 10
       },
-      "hitter_cats": ["r", "rbi", "sb", "double", "homerun"],
-      "pitcher_cats": ["win", "save", "era", "k", "whip"],
+      "hitter_cats": ["r", "rbi", "sb", "avg", "homerun"],
+      "pitcher_cats": ["win", "save", "era", "k_allowed", "whip"],
       "cutline_penalties": {
         "dh_penalty": 0,
         "mult_position_2": 0,
