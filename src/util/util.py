@@ -1,6 +1,29 @@
 import pandas as pd
 import requests
-from src.util.constants import summarized_position_map
+from src.util.constants import summarized_position_map, eligible_cats, sgp_hitter_stat_map, sgp_hitter_stat_adjustment, sgp_pitcher_stat_map
+
+
+def check_stat_inputs(user_inputs):
+    # check the event inputs against the sgp stat maps
+    hitter_cats = user_inputs.get('hitter_cats')
+    pitcher_cats = user_inputs.get('pitcher_cats')
+    
+    # take sum of VDP score for the given roto categories
+    missing_cats_hitter = [cat for cat in hitter_cats if cat not in eligible_cats.get('hitter')]
+    missing_cats_pitcher = [cat for cat in pitcher_cats if cat not in eligible_cats.get('pitcher')]
+
+    # Raise an error if either list has missing categories
+    if missing_cats_hitter or missing_cats_pitcher:
+        error_message = []
+        
+        if missing_cats_hitter:
+            error_message.append(f"No mapping for the selected hitter categories: {missing_cats_hitter}")
+        
+        if missing_cats_pitcher:
+            error_message.append(f"No mapping for the selected pitcher categories: {missing_cats_pitcher}")
+
+        raise ValueError("\n".join(error_message))
+
 
 def get_projections_df():
     # get raw projections (from api in prod, csv in this workbook) - cols I:Y in workbook

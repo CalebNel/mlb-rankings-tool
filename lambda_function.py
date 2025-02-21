@@ -3,6 +3,7 @@ import pandas as pd
 
 from src.roto import main
 from src.points import main_pts
+from src.util import util
 
 def lambda_handler(event, context):
     
@@ -17,6 +18,9 @@ def lambda_handler(event, context):
         rankings = main_pts.get_points_league_rankings(projections_df, user_inputs)
         payload = json.loads(rankings.to_json(orient="records"))
     elif league_type == 'roto':
+        # break script if the hit/pitch cats don't match
+        util.check_stat_inputs(user_inputs)
+        
         hitter_rankings = main.get_hitter_rankings(projections_df, user_inputs)
         pitcher_rankings = main.get_pitcher_rankings(projections_df, user_inputs)
         
@@ -38,7 +42,8 @@ def lambda_handler(event, context):
 
 if __name__ == '__main__':
     
-    file_path = "./src/util/example_post_requests/event.json"
+    # file_path = "./src/util/example_post_requests/event.json"
+    file_path = "./src/util/example_post_requests/full_tuna.json"
     with open(file_path, "r") as file:
         event = json.load(file)
         

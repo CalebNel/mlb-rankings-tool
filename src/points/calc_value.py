@@ -6,17 +6,21 @@ def get_number_players(inputs):
     num_teams = inputs.get('teams')
     
     # utility spot distribution - assume outfielders will occupy this spot 60% of the time
-    util_ci = inputs.get('num_slots').get('u') * 0.2
-    util_mi = inputs.get('num_slots').get('u') * 0.2
-    util_o = inputs.get('num_slots').get('u') * 0.6
+    util_ci = round(inputs.get('num_slots').get('u') * 0.2)
+    util_mi = round(inputs.get('num_slots').get('u') * 0.2)
+    util_o = round(inputs.get('num_slots').get('u') * 0.6)
+    
+    # pitcher utility spot dist - assume 75% of pitcher-utility spots are SPs
+    sp_pct = .75
+    util_p_sp = round(inputs.get('num_slots').get('p') * sp_pct)
+    util_p_rp = (inputs.get('num_slots').get('p') - util_p_sp)
     
     num_c = inputs.get('num_slots').get('c') * num_teams
     num_ci = (inputs.get('num_slots').get('1b') + inputs.get('num_slots').get('3b') + inputs.get('num_slots').get('ci') + util_ci) * num_teams
     num_mi = (inputs.get('num_slots').get('ss') + inputs.get('num_slots').get('2b') + inputs.get('num_slots').get('mi') + util_mi) * num_teams
     num_o = (inputs.get('num_slots').get('o') + util_o) * num_teams
-    num_p = inputs.get('num_slots').get('p') * num_teams
-    num_b = inputs.get('num_slots').get('b') * num_teams
-    num_starting = num_c + num_ci + num_mi + num_o + num_p
+    num_sp = (inputs.get('num_slots').get('sp') + util_p_sp) * num_teams
+    num_rp = (inputs.get('num_slots').get('rp') + util_p_rp) * num_teams
     
     # map positions to total rostered
     positions = {
@@ -24,7 +28,8 @@ def get_number_players(inputs):
         "CI": num_ci,
         "MI": num_mi,
         "O": num_o,
-        "P": num_p,
+        "SP": num_sp,
+        "RP": num_rp
     }
     
     return positions
@@ -47,7 +52,7 @@ def get_value_ranks(inputs):
     }
     
     # marginal value over total players (not specific to roster)
-    num_starting = positions.get('C') + positions.get('CI') + positions.get('MI') + positions.get('O') + positions.get('P')
+    num_starting = positions.get('C') + positions.get('CI') + positions.get('MI') + positions.get('O') + positions.get('SP') + positions.get('RP')
     num_b = inputs.get('num_slots').get('b') * num_teams
     
     # total_rank_dict = [round((num_starting + num_b) * pct)+1 for pct in marginal_value_threshold]
@@ -110,7 +115,7 @@ def calculate_salary(projections_df, user_inputs):
     # get "free money" - total budget minus $1 for each rostered player since that's the minimum
     total_budget = user_inputs.get('budget') * user_inputs.get('teams')
     positions = get_number_players(user_inputs)
-    num_starting = positions.get('C') + positions.get('CI') + positions.get('MI') + positions.get('O') + positions.get('P')
+    num_starting = positions.get('C') + positions.get('CI') + positions.get('MI') + positions.get('O') + positions.get('SP') + positions.get('RP')
     num_b = user_inputs.get('num_slots').get('b') * user_inputs.get('teams')
     total_drafted_players = num_starting + num_b
     free_money = total_budget - (total_drafted_players)

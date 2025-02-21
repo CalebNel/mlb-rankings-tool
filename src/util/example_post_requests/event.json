@@ -31308,10 +31308,12 @@
         "mi": 0,
         "o": 3,
         "u": 1,
-        "p": 8,
+        "sp": 2,
+        "rp": 2,
+        "p": 4,
         "b": 10
       },
-      "hitter_cats": ["r", "rbi", "sb", "avg", "homerun"],
+      "hitter_cats": ["run", "rbi", "sb", "ops", "homerun"],
       "pitcher_cats": ["win", "save", "era", "k_allowed", "whip"],
       "cutline_penalties": {
         "dh_penalty": 0,

@@ -1,5 +1,10 @@
 # Hardcoded factors used in calculations. Probably static but who knows
 
+eligible_cats = {
+    'hitter': ["run", "homerun", "rbi", "sb", "avg", "obp", "slg", "ops", "bb", "k", "tb", "hit", "bb_per_k", "cs", "pa", "ab", "single", "double", "triple"],
+    'pitcher': ["win", "save", "era", "k_allowed", "whip", "qs", "hold", "bb_allowed", "hit_allowed", "homerun_allowed", "k_per_9", "loss", "ip", "k_per_bb"]
+}
+
     
 summarized_position_map = {
     "1B": {"detailed": "1", "summarized": "CI"},
@@ -33,8 +38,8 @@ summarized_position_map = {
     "UT, P": {"detailed": "O", "summarized": "O"},
     "1B, 2B, SS": {"detailed": "12S", "summarized": "MI"},
     "2B, 3B, OF": {"detailed": "23O", "summarized": "CI"},
-    "SP": {"detailed": "SP", "summarized": "P"},
-    "RP": {"detailed": "RP", "summarized": "P"}
+    "SP": {"detailed": "SP", "summarized": "SP"},
+    "RP": {"detailed": "RP", "summarized": "RP"}
 }
 
 
@@ -55,13 +60,14 @@ sgp_hitter_stat_map = {
     "homerun": 1.0,
     "rbi": 1.02,
     "sb": 2.2,
-    
+    'slg': 1.11,
+    'ops': 1.11,
     'ab': 0.8,
     'bb': 1,
     'k': 1,
     'tb': 1,
     "hit": 1,
-    # "bb/k": 1,
+    "bb_per_k": 1,
     "cs": 0.8,
     "pa": 0.8,
     "single": 1,
@@ -77,13 +83,14 @@ sgp_hitter_stat_adjustment = {
     "homerun": 1.0,
     "rbi": 1.4,
     "sb": 0.6,
-    
+    'slg': 5,
+    'ops': 5,
     'ab': 1,
     'bb': 1,
     'k': 1,
     'tb': 1,
     "hit": 1,
-    # "bb/k": 1,
+    "bb_per_k": 1,
     "cs": 1,
     "pa": 1,
     "single": 1,
@@ -98,53 +105,16 @@ sgp_pitcher_stat_map = {
     "save": 2.96,
     "k_allowed": 1.01,
     "whip": 1.06,
-    
     'qs': 1.01,
-    'hold': 1.05
-    
-    # 'ab': 0.8,
-    # 'bb': 1,
-    # 'k': 1,
-    # 'tb': 1,
-    # "hit": 1,
-    # # "bb/k": 1,
-    # "cs": 0.8,
-    # "pa": 0.8,
-    # "single": 1,
-    # "double": 1.1,
-    # "triple": 1.2
+    'hold': 1.05,
+    'bb_allowed': 1.0,
+    'hit_allowed': 1.0,
+    'homerun_allowed': 1.0,
+    'k_per_9': 1.01,
+    'loss': 1.01,
+    'ip': 1.0,
+    'k_per_bb': 1.0
 }
-
-# These are used to calc pitcher vdp. They are where "league average for rostered players" should be but they are just hardcoded so idk
-#   I think it's just a normalization, so subtract league average divided by the standard dev. but not sure
-#   sheet: `Pitcher VDP$` columns AT:AX
-#
-# pitcher_hardcoded_factors = {
-#     "win": {
-#         "avg": 9.168625,
-#         "denom": 4.088213
-#     },
-#     "save": {
-#         "avg": 6.518400,
-#         "denom": 11.789446
-#     },
-#     "era": {
-#         "avg": 3.543764,
-#         "denom": 0.998204
-#     },
-#     "k": {
-#         "avg": 147.802828,
-#         "denom": 61.052144
-#     },
-#     "whip": {
-#         "avg": 1.171002,
-#         "denom": 0.314449
-#     },
-#     "ip": {
-#         "avg": 138.4
-#     }
-# }
-
 
 
 if __name__ == '__main__':

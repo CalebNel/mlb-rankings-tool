@@ -1,5 +1,4 @@
 import pandas as pd
-# from src.util.constants import summarized_position_map, vdp_positional_discount_map, pitcher_hardcoded_factors
 from src.util.constants import sgp_pitcher_stat_map
 
     
@@ -23,8 +22,10 @@ def get_position_cutoff_map_pitchers(inputs):
     num_teams = inputs.get('teams')
     
     # num_SP - assume 2 closers per team
-    num_sp = num_teams * (inputs.get('num_slots').get('p') - 2)
-    num_rp = num_teams * 2
+    # assume 75% of utility pitchers are SPs
+    sp_fact = .75
+    num_sp = num_teams * (inputs.get('num_slots').get('sp') + round(inputs.get('num_slots').get('p')*sp_fact, 0))
+    num_rp = num_teams * (inputs.get('num_slots').get('rp') + round(inputs.get('num_slots').get('p')*(1-sp_fact), 0))
     
     position_cutoff_map = {
         "SP": num_sp,
@@ -58,7 +59,12 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
     whip = walks_and_hits/rostered_players['ip'].mean()
     qs = rostered_players['qs'].mean()
     hold = rostered_players['hold'].mean()
-    
+    bb_allowed = rostered_players['bb_allowed'].mean()
+    hit_allowed = rostered_players['hit_allowed'].mean()
+    homerun_allowed = rostered_players['homerun_allowed'].mean()
+    k_per_9 = rostered_players['k_allowed'].mean()/rostered_players['ip'].mean() * 9
+    loss = rostered_players['loss'].mean()
+    k_per_bb = rostered_players['k_allowed'].mean()/rostered_players['bb_allowed'].mean()
     
     rostered_players_avgs = {
         'ip': ip,
@@ -68,7 +74,13 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
         'era': era,
         'whip': whip,
         'qs': qs,
-        'hold': hold
+        'hold': hold,
+        'bb_allowed': bb_allowed,
+        'hit_allowed': hit_allowed,
+        'homerun_allowed': homerun_allowed,
+        'k_per_9': k_per_9,
+        'loss': loss,
+        'k_per_bb': k_per_bb
     }
     
     return rostered_players_avgs, projections_df
@@ -89,15 +101,30 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     league_avg_whip = league_weighted_avg.get('whip')
     league_avg_qs = league_weighted_avg.get('qs')
     league_avg_hold = league_weighted_avg.get('hold')
+    league_avg_bb_allowed = league_weighted_avg.get('bb_allowed')
+    league_avg_hit_allowed = league_weighted_avg.get('hit_allowed')
+    league_avg_homerun_allowed = league_weighted_avg.get('homerun_allowed')
+    league_avg_k_per_9 = league_weighted_avg.get('k_per_9')
+    league_avg_loss = league_weighted_avg.get('loss')
+    league_avg_k_per_bb = league_weighted_avg.get('k_per_bb')
+    
     
     # get raw scores that go into vdp - these get adjusted by some hardcoded values down the line
+    #   negate raw scores for cats where low is good
     raw_score_win = (projections_df['win'] - league_avg_win) / league_avg_win
     raw_score_save = (projections_df['save'] - league_avg_save) / league_avg_save
-    raw_score_era = (projections_df['era'] - league_avg_era) / league_avg_era * (-projections_df['ip']/league_avg_ip)
+    raw_score_era = (-1) * (projections_df['era'] - league_avg_era) / league_avg_era * (projections_df['ip']/league_avg_ip)
     raw_score_k = (projections_df['k_allowed'] - league_avg_k_allowed) / league_avg_k_allowed
-    raw_score_whip = (projections_df['whip'] - league_avg_whip) / league_avg_whip * (-projections_df['ip']/league_avg_whip)
+    raw_score_whip = (-1) * (projections_df['whip'] - league_avg_whip) / league_avg_whip * (projections_df['ip']/league_avg_whip)
     raw_score_qs = (projections_df['qs'] - league_avg_qs) / league_avg_qs
     raw_score_hold = (projections_df['qs'] - league_avg_hold) / league_avg_hold
+    raw_score_bb_allowed = (projections_df['bb_allowed'] - league_avg_bb_allowed) / league_avg_bb_allowed
+    raw_score_hit_allowed = (projections_df['hit_allowed'] - league_avg_hit_allowed) / league_avg_hit_allowed
+    raw_score_homerun_allowed = (projections_df['homerun_allowed'] - league_avg_homerun_allowed) / league_avg_homerun_allowed
+    raw_score_k_per_9 = (projections_df['k_per_9'] - league_avg_k_per_9) / league_avg_k_per_9
+    raw_score_loss = (-1) * (projections_df['loss'] - league_avg_loss) / league_avg_loss
+    raw_score_ip = (projections_df['ip'] - league_avg_ip) / league_avg_ip
+    raw_score_k_per_bb = (projections_df['k_per_bb'] - league_avg_k_per_bb) / league_avg_k_per_bb
     
     # max raw scores
     league_max_vdp_win = max(raw_score_win)
@@ -107,6 +134,13 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     league_max_vdp_whip = max(raw_score_whip)
     league_max_vdp_qs = max(raw_score_qs)
     league_max_vdp_hold = max(raw_score_hold)
+    league_max_vdp_bb_allowed = max(raw_score_bb_allowed)
+    league_max_vdp_hit_allowed = max(raw_score_hit_allowed)
+    league_max_vdp_homerun_allowed = max(raw_score_homerun_allowed)
+    league_max_vdp_k_per_9 = max(raw_score_k_per_9)
+    league_max_vdp_loss = max(raw_score_loss)
+    league_max_vdp_ip = max(raw_score_ip)
+    league_max_vdp_k_per_bb = max(raw_score_k_per_bb)
     
     # harcoded mult factors
     mult_fact_win = sgp_pitcher_stat_map.get('win')
@@ -116,6 +150,13 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     mult_fact_whip = sgp_pitcher_stat_map.get('whip')
     mult_fact_qs = sgp_pitcher_stat_map.get('qs')
     mult_fact_hold = sgp_pitcher_stat_map.get('hold')
+    mult_fact_bb_allowed = sgp_pitcher_stat_map.get('bb_allowed')
+    mult_fact_hit_allowed = sgp_pitcher_stat_map.get('hit_allowed')
+    mult_fact_homerun_allowed = sgp_pitcher_stat_map.get('homerun_allowed')
+    mult_fact_k_per_9 = sgp_pitcher_stat_map.get('k_per_9')
+    mult_fact_loss = sgp_pitcher_stat_map.get('loss')
+    mult_fact_ip = sgp_pitcher_stat_map.get('ip')
+    mult_fact_k_per_bb = sgp_pitcher_stat_map.get('k_per_bb')
     
     # adjusted vdp scores - get them for all stats, then only add the relevant ones in next step
     #   use dict to make things dynamic
@@ -126,16 +167,27 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
         "k_allowed": raw_score_k * mult_fact_k / league_max_vdp_k,
         "whip": raw_score_whip * mult_fact_whip / league_max_vdp_whip,
         "qs": raw_score_qs * mult_fact_qs / league_max_vdp_qs,
-        "hold": raw_score_hold * mult_fact_hold / league_max_vdp_hold
+        "hold": raw_score_hold * mult_fact_hold / league_max_vdp_hold,
+        "bb_allowed": raw_score_bb_allowed * mult_fact_bb_allowed / league_max_vdp_bb_allowed,
+        "hit_allowed": raw_score_hit_allowed * mult_fact_hit_allowed / league_max_vdp_hit_allowed,
+        "homerun_allowed": raw_score_homerun_allowed * mult_fact_homerun_allowed / league_max_vdp_homerun_allowed,
+        "k_per_9": raw_score_k_per_9 * mult_fact_k_per_9 / league_max_vdp_k_per_9,
+        "loss": raw_score_loss * mult_fact_loss / league_max_vdp_loss,
+        "ip": raw_score_ip * mult_fact_ip / league_max_vdp_ip,
+        "k_per_bb": raw_score_k_per_bb * mult_fact_k_per_bb / league_max_vdp_k_per_bb
     }
     
-    # vdp score
-    for cat in pitcher_cats:
-        if cat in vdp_score_map:
-            projections_df[f'vdp_score_{cat}'] = vdp_score_map[cat]
+    
+    # take sum of VDP score for the given roto categories
+    missing_cats = [cat for cat in pitcher_cats if cat not in vdp_score_map]
+    
+    # break if missing cats
+    if missing_cats:
+        raise ValueError(f"Missing categories in vdp_score_map: {missing_cats}")
 
-    # Calculate total vdp_score
-    projections_df['vdp_score'] = sum(projections_df[f'vdp_score_{cat}'] for cat in pitcher_cats if f'vdp_score_{cat}' in projections_df)
+    # Compute vdp_score only if all categories are valid
+    vdp_score = sum(vdp_score_map[cat] for cat in pitcher_cats)
+    projections_df['vdp_score'] = vdp_score
     
     # position values - first rank players based on SP/RP
     projections_df['summarized_pos_cut_rank'] = projections_df['position'].map(lambda x: position_cutoff_map.get(x, {}))
