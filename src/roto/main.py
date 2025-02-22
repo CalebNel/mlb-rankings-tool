@@ -36,6 +36,9 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
 
 def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     
+    # delete once out_allowed is added to event.json
+    projections_df = pitchers.add_fields(projections_df)
+    
     # filter only pitchers
     projections_df = projections_df[projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
     

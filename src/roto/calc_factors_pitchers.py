@@ -1,6 +1,11 @@
 import pandas as pd
 from src.util.constants import sgp_pitcher_stat_map
 
+def add_fields(projections_df):
+    # slg, ops, tb, bb/k
+    projections_df['out_allowed'] = projections_df['ip'] * 3
+    
+    return projections_df
     
 def calc_total_pitcher_budget(inputs):
     # total "free money" spent on hitters
@@ -65,6 +70,7 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
     k_per_9 = rostered_players['k_allowed'].mean()/rostered_players['ip'].mean() * 9
     loss = rostered_players['loss'].mean()
     k_per_bb = rostered_players['k_allowed'].mean()/rostered_players['bb_allowed'].mean()
+    out_allowed = rostered_players['out_allowed'].mean()
     
     rostered_players_avgs = {
         'ip': ip,
@@ -80,7 +86,8 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
         'homerun_allowed': homerun_allowed,
         'k_per_9': k_per_9,
         'loss': loss,
-        'k_per_bb': k_per_bb
+        'k_per_bb': k_per_bb,
+        'out_allowed': out_allowed
     }
     
     return rostered_players_avgs, projections_df
@@ -107,6 +114,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     league_avg_k_per_9 = league_weighted_avg.get('k_per_9')
     league_avg_loss = league_weighted_avg.get('loss')
     league_avg_k_per_bb = league_weighted_avg.get('k_per_bb')
+    league_avg_out_allowed = league_weighted_avg.get('out_allowed')
     
     
     # get raw scores that go into vdp - these get adjusted by some hardcoded values down the line
@@ -125,6 +133,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     raw_score_loss = (-1) * (projections_df['loss'] - league_avg_loss) / league_avg_loss
     raw_score_ip = (projections_df['ip'] - league_avg_ip) / league_avg_ip
     raw_score_k_per_bb = (projections_df['k_per_bb'] - league_avg_k_per_bb) / league_avg_k_per_bb
+    raw_score_out_allowed = (projections_df['out_allowed'] - league_avg_out_allowed) / league_avg_out_allowed
     
     # max raw scores
     league_max_vdp_win = max(raw_score_win)
@@ -141,6 +150,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     league_max_vdp_loss = max(raw_score_loss)
     league_max_vdp_ip = max(raw_score_ip)
     league_max_vdp_k_per_bb = max(raw_score_k_per_bb)
+    league_max_vdp_out_allowed = max(raw_score_out_allowed)
     
     # harcoded mult factors
     mult_fact_win = sgp_pitcher_stat_map.get('win')
@@ -157,6 +167,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     mult_fact_loss = sgp_pitcher_stat_map.get('loss')
     mult_fact_ip = sgp_pitcher_stat_map.get('ip')
     mult_fact_k_per_bb = sgp_pitcher_stat_map.get('k_per_bb')
+    mult_fact_out_allowed = sgp_pitcher_stat_map.get('out_allowed')
     
     # adjusted vdp scores - get them for all stats, then only add the relevant ones in next step
     #   use dict to make things dynamic
@@ -174,7 +185,8 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
         "k_per_9": raw_score_k_per_9 * mult_fact_k_per_9 / league_max_vdp_k_per_9,
         "loss": raw_score_loss * mult_fact_loss / league_max_vdp_loss,
         "ip": raw_score_ip * mult_fact_ip / league_max_vdp_ip,
-        "k_per_bb": raw_score_k_per_bb * mult_fact_k_per_bb / league_max_vdp_k_per_bb
+        "k_per_bb": raw_score_k_per_bb * mult_fact_k_per_bb / league_max_vdp_k_per_bb,
+        "out_allowed": raw_score_out_allowed * mult_fact_out_allowed / league_max_vdp_out_allowed
     }
     
     
