@@ -126,7 +126,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     raw_score_whip = (-1) * (projections_df['whip'] - league_avg_whip) / league_avg_whip * (projections_df['ip']/league_avg_whip)
     raw_score_qs = (projections_df['qs'] - league_avg_qs) / league_avg_qs
     raw_score_hold = (projections_df['qs'] - league_avg_hold) / league_avg_hold
-    raw_score_bb_allowed = (projections_df['bb_allowed'] - league_avg_bb_allowed) / league_avg_bb_allowed
+    raw_score_bb_allowed = (-1) * (projections_df['bb_allowed'] - league_avg_bb_allowed) / league_avg_bb_allowed
     raw_score_hit_allowed = (projections_df['hit_allowed'] - league_avg_hit_allowed) / league_avg_hit_allowed
     raw_score_homerun_allowed = (projections_df['homerun_allowed'] - league_avg_homerun_allowed) / league_avg_homerun_allowed
     raw_score_k_per_9 = (projections_df['k_per_9'] - league_avg_k_per_9) / league_avg_k_per_9
@@ -173,12 +173,12 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     #   use dict to make things dynamic
     vdp_score_map = {
         "win": raw_score_win * mult_fact_win / league_max_vdp_win,
-        "save": raw_score_save * mult_fact_save / league_max_vdp_save,
+        "save": (raw_score_save * mult_fact_save / league_max_vdp_save).fillna(0), # fillna(0) for leagues where RP=0
         "era": raw_score_era * mult_fact_era / league_max_vdp_era,
         "k_allowed": raw_score_k * mult_fact_k / league_max_vdp_k,
         "whip": raw_score_whip * mult_fact_whip / league_max_vdp_whip,
         "qs": raw_score_qs * mult_fact_qs / league_max_vdp_qs,
-        "hold": raw_score_hold * mult_fact_hold / league_max_vdp_hold,
+        "hold": (raw_score_hold * mult_fact_hold / league_max_vdp_hold).fillna(0),
         "bb_allowed": raw_score_bb_allowed * mult_fact_bb_allowed / league_max_vdp_bb_allowed,
         "hit_allowed": raw_score_hit_allowed * mult_fact_hit_allowed / league_max_vdp_hit_allowed,
         "homerun_allowed": raw_score_homerun_allowed * mult_fact_homerun_allowed / league_max_vdp_homerun_allowed,
@@ -207,8 +207,11 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     
     # Next get the min vdp score of rostered players - think "what's the value of the last rostered player at each position"
     score_thresholds = projections_df[projections_df['vdp_rank'] <= projections_df['summarized_pos_cut_rank']].groupby('position')['vdp_score'].min()
-    sp_score_thresh = score_thresholds.get('SP')
-    rp_score_thresh = score_thresholds.get('RP')
+    print(score_thresholds)
+    print(projections_df)
+    # print(vdp_score_map)
+    sp_score_thresh = score_thresholds.get('SP', 0)
+    rp_score_thresh = score_thresholds.get('RP', 0)
     
     # calc normalized vdp score based on position and positive/negative raw vdp_score
     projections_df['vdp_score_norm_initial'] = 0
@@ -239,4 +242,6 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     
     
 
-
+# helper function to zero-out edge case cats, like saves/holds if no RPs
+# def default_if_all_nan(value, default=0):
+#     return default if pd.isna(value).all() else value

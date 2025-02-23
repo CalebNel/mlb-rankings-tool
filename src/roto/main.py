@@ -41,6 +41,7 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     
     # filter only pitchers
     projections_df = projections_df[projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
+    # projections_df = projections_df[projections_df['position'].str.contains('SP', na=False)].reset_index(drop=True)
     
     # get total "free money" spent on hitters
     total_pitcher_sal = pitchers.calc_total_pitcher_budget(user_inputs)
