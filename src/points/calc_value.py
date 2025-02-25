@@ -5,22 +5,31 @@ def get_number_players(inputs):
         # num teams
     num_teams = inputs.get('teams')
     
-    # utility spot distribution - assume outfielders will occupy this spot 60% of the time
-    util_ci = round(inputs.get('num_slots').get('u') * 0.2)
-    util_mi = round(inputs.get('num_slots').get('u') * 0.2)
-    util_o = round(inputs.get('num_slots').get('u') * 0.6)
+    # utility spot distribution - assume outfielders will occupy this spot 50% of the time
+    util_c = inputs.get('num_slots').get('u') * 0.05
+    util_ci = inputs.get('num_slots').get('u') * 0.25
+    util_mi = inputs.get('num_slots').get('u') * 0.2
+    util_o = inputs.get('num_slots').get('u') * 0.5
     
     # pitcher utility spot dist - assume 75% of pitcher-utility spots are SPs
     sp_pct = .75
-    util_p_sp = round(inputs.get('num_slots').get('p') * sp_pct)
+    util_p_sp = (inputs.get('num_slots').get('p') * sp_pct)
     util_p_rp = (inputs.get('num_slots').get('p') - util_p_sp)
     
-    num_c = inputs.get('num_slots').get('c') * num_teams
-    num_ci = (inputs.get('num_slots').get('1b') + inputs.get('num_slots').get('3b') + inputs.get('num_slots').get('ci') + util_ci) * num_teams
-    num_mi = (inputs.get('num_slots').get('ss') + inputs.get('num_slots').get('2b') + inputs.get('num_slots').get('mi') + util_mi) * num_teams
-    num_o = (inputs.get('num_slots').get('o') + util_o) * num_teams
-    num_sp = (inputs.get('num_slots').get('sp') + util_p_sp) * num_teams
-    num_rp = (inputs.get('num_slots').get('rp') + util_p_rp) * num_teams
+    # bench spots
+    bench_c = (inputs.get('num_slots').get('b') * 0.05)
+    bench_ci = (inputs.get('num_slots').get('b') * 0.15)
+    bench_mi = (inputs.get('num_slots').get('b') * 0.20)
+    bench_o = (inputs.get('num_slots').get('b') * 0.30)
+    bench_sp = (inputs.get('num_slots').get('b') * 0.2)
+    bench_rp = (inputs.get('num_slots').get('b') * 0.1)
+    
+    num_c = (inputs.get('num_slots').get('c') + util_c + bench_c) * num_teams
+    num_ci = (inputs.get('num_slots').get('1b') + inputs.get('num_slots').get('3b') + inputs.get('num_slots').get('ci') + util_ci + bench_ci) * num_teams
+    num_mi = (inputs.get('num_slots').get('ss') + inputs.get('num_slots').get('2b') + inputs.get('num_slots').get('mi') + util_mi + bench_mi) * num_teams
+    num_o = (inputs.get('num_slots').get('o') + util_o + bench_o) * num_teams
+    num_sp = (inputs.get('num_slots').get('sp') + util_p_sp + bench_sp) * num_teams
+    num_rp = (inputs.get('num_slots').get('rp') + util_p_rp + bench_rp) * num_teams
     
     # map positions to total rostered
     positions = {
@@ -31,7 +40,7 @@ def get_number_players(inputs):
         "SP": num_sp,
         "RP": num_rp
     }
-    
+    # print(positions)
     return positions
 
 def get_value_ranks(inputs):
@@ -55,8 +64,8 @@ def get_value_ranks(inputs):
     num_starting = positions.get('C') + positions.get('CI') + positions.get('MI') + positions.get('O') + positions.get('SP') + positions.get('RP')
     num_b = inputs.get('num_slots').get('b') * num_teams
     
-    # total_rank_dict = [round((num_starting + num_b) * pct)+1 for pct in marginal_value_threshold]
-    total_rank_dict = [0] * len(marginal_value_threshold)
+    total_rank_dict = [round((num_starting + num_b) * pct)+1 for pct in marginal_value_threshold]
+    # total_rank_dict = [0] * len(marginal_value_threshold)
     
     return position_rank_dict, total_rank_dict
 
@@ -104,7 +113,8 @@ def calculate_marginal_value(projections_df, user_inputs, marginal_value_dict):
     projections_df['fpts_diff_total'] = total_thresh_df.apply(lambda col: (projections_df['fpts'] - col).clip(lower=0), axis=0).sum(axis=1)
     
     # get total marginal value
-    projections_df['marginal_value'] = (projections_df['fpts_diff_total'] + projections_df['fpts_diff_pos']) ** value_adjustor 
+    #   Discount TOTAL marginal value to the 0.5 power
+    projections_df['marginal_value'] = (projections_df['fpts_diff_total']**0.85 + projections_df['fpts_diff_pos']) ** value_adjustor 
     
     return projections_df
 

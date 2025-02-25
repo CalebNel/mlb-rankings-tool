@@ -3,4 +3,4 @@ aws lambda update-function-code --function-name calculate_mlb_rankings --zip-fil
 rm -rf package lambda_function.zip
 
 
-aws lambda get-function --function-name calculate_mlb_rankings --no-cli-pager
+# aws lambda get-function --function-name calculate_mlb_rankings --no-cli-pager
