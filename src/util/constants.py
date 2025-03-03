@@ -115,7 +115,7 @@ sgp_pitcher_stat_map = {
     'ip': 1.0,
     'k_per_bb': 1.0,
     'out_allowed': 1.0,
-    'sold': 1.2
+    'sold': 2.96
 }
 
 

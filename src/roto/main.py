@@ -60,6 +60,7 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     return projections_df[['id', 'position', 'value']]
 
 if __name__ == '__main__':
+    pd.set_option("display.max_rows", 1000)
     
     file_path = "./src/util/example_post_requests/event.json"
     with open(file_path, "r") as file:
