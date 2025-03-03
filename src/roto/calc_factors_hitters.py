@@ -268,6 +268,7 @@ def calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
     total_normalized_vdp = projections_df[projections_df['vdp_score_norm_initial'] >= 0]['vdp_score_norm_initial'].sum()
     
     projections_df['value'] = round(projections_df['vdp_score_norm']/total_normalized_vdp * total_hitter_sal + 1, 1)
+    projections_df = projections_df.sort_values(by='value', ascending=False)
         
     return projections_df
     

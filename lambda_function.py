@@ -42,10 +42,11 @@ def lambda_handler(event, context):
 
 if __name__ == '__main__':
     
-    # file_path = "./src/util/example_post_requests/event.json"
-    file_path = "./src/util/example_post_requests/full_tuna.json"
+    file_path = "./src/util/example_post_requests/event.json"
+    # file_path = "./src/util/example_post_requests/full_tuna.json"
     with open(file_path, "r") as file:
         event = json.load(file)
         
+    pd.set_option("display.max_rows", 1000)
     print(lambda_handler(event, context=None))
     

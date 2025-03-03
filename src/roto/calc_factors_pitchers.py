@@ -243,6 +243,8 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     
     # calc value
     projections_df['value'] = round(projections_df['vdp_score_norm_initial']/total_normalized_vdp * total_pitcher_sal + 1, 1)
+    projections_df = projections_df.sort_values(by='value', ascending=False)
+    
     
     return projections_df
     
