@@ -2,7 +2,7 @@
 
 eligible_cats = {
     'hitter': ["run", "homerun", "rbi", "sb", "avg", "obp", "slg", "ops", "bb", "k", "tb", "hit", "bb_per_k", "cs", "pa", "ab", "single", "double", "triple"],
-    'pitcher': ["win", "save", "era", "k_allowed", "whip", "qs", "hold", "bb_allowed", "hit_allowed", "homerun_allowed", "k_per_9", "loss", "ip", "k_per_bb", "out_allowed"]
+    'pitcher': ["win", "save", "era", "k_allowed", "whip", "qs", "hold", "bb_allowed", "hit_allowed", "homerun_allowed", "k_per_9", "loss", "ip", "k_per_bb", "out_allowed", "sold"]
 }
 
     
@@ -114,7 +114,8 @@ sgp_pitcher_stat_map = {
     'loss': 1.01,
     'ip': 1.0,
     'k_per_bb': 1.0,
-    'out_allowed': 1.0
+    'out_allowed': 1.0,
+    'sold': 1.2
 }
 
 

@@ -4,6 +4,7 @@ from src.util.constants import sgp_pitcher_stat_map
 def add_fields(projections_df):
     # slg, ops, tb, bb/k
     projections_df['out_allowed'] = projections_df['ip'] * 3
+    projections_df['sold'] = projections_df['save'] + projections_df['hold']
     
     return projections_df
     
@@ -71,6 +72,7 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
     loss = rostered_players['loss'].mean()
     k_per_bb = rostered_players['k_allowed'].mean()/rostered_players['bb_allowed'].mean()
     out_allowed = rostered_players['out_allowed'].mean()
+    sold = rostered_players['sold'].mean()
     
     rostered_players_avgs = {
         'ip': ip,
@@ -87,7 +89,8 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
         'k_per_9': k_per_9,
         'loss': loss,
         'k_per_bb': k_per_bb,
-        'out_allowed': out_allowed
+        'out_allowed': out_allowed,
+        'sold': sold
     }
     
     return rostered_players_avgs, projections_df
@@ -115,6 +118,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     league_avg_loss = league_weighted_avg.get('loss')
     league_avg_k_per_bb = league_weighted_avg.get('k_per_bb')
     league_avg_out_allowed = league_weighted_avg.get('out_allowed')
+    league_avg_sold = league_weighted_avg.get('sold')
     
     
     # get raw scores that go into vdp - these get adjusted by some hardcoded values down the line
@@ -134,6 +138,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     raw_score_ip = (projections_df['ip'] - league_avg_ip) / league_avg_ip
     raw_score_k_per_bb = (projections_df['k_per_bb'] - league_avg_k_per_bb) / league_avg_k_per_bb
     raw_score_out_allowed = (projections_df['out_allowed'] - league_avg_out_allowed) / league_avg_out_allowed
+    raw_score_sold = (projections_df['sold'] - league_avg_sold) / league_avg_sold
     
     # max raw scores
     league_max_vdp_win = max(raw_score_win)
@@ -151,6 +156,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     league_max_vdp_ip = max(raw_score_ip)
     league_max_vdp_k_per_bb = max(raw_score_k_per_bb)
     league_max_vdp_out_allowed = max(raw_score_out_allowed)
+    league_max_vdp_sold = max(raw_score_sold)
     
     # harcoded mult factors
     mult_fact_win = sgp_pitcher_stat_map.get('win')
@@ -168,6 +174,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     mult_fact_ip = sgp_pitcher_stat_map.get('ip')
     mult_fact_k_per_bb = sgp_pitcher_stat_map.get('k_per_bb')
     mult_fact_out_allowed = sgp_pitcher_stat_map.get('out_allowed')
+    mult_fact_sold = sgp_pitcher_stat_map.get('sold')
     
     # adjusted vdp scores - get them for all stats, then only add the relevant ones in next step
     #   use dict to make things dynamic
@@ -186,7 +193,8 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
         "loss": raw_score_loss * mult_fact_loss / league_max_vdp_loss,
         "ip": raw_score_ip * mult_fact_ip / league_max_vdp_ip,
         "k_per_bb": raw_score_k_per_bb * mult_fact_k_per_bb / league_max_vdp_k_per_bb,
-        "out_allowed": raw_score_out_allowed * mult_fact_out_allowed / league_max_vdp_out_allowed
+        "out_allowed": raw_score_out_allowed * mult_fact_out_allowed / league_max_vdp_out_allowed,
+        "sold": raw_score_sold * mult_fact_sold / league_max_vdp_sold
     }
     
     
@@ -207,9 +215,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     
     # Next get the min vdp score of rostered players - think "what's the value of the last rostered player at each position"
     score_thresholds = projections_df[projections_df['vdp_rank'] <= projections_df['summarized_pos_cut_rank']].groupby('position')['vdp_score'].min()
-    print(score_thresholds)
-    print(projections_df)
-    # print(vdp_score_map)
+    
     sp_score_thresh = score_thresholds.get('SP', 0)
     rp_score_thresh = score_thresholds.get('RP', 0)
     

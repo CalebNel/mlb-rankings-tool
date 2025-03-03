@@ -5,10 +5,6 @@ from src.roto import calc_factors_hitters as hitters
 from src.roto import calc_factors_pitchers as pitchers
 from src.util import util as util
 
-
-# TODO: figure out fuckery with multiple positions 
-#       add logic for league type (mixed/al/nl)
-
 def get_hitter_rankings(projections_df, user_inputs, debug=False):
     
     # filter only hitters
@@ -30,6 +26,7 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
     projections_df = hitters.calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
     
     if debug:
+        print(league_weighted_avg)
         projections_df.to_csv('./data/projections_debug_hitter.csv', index=False)
 
     return projections_df[['id', 'position', 'value']]
@@ -56,6 +53,8 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     projections_df = pitchers.calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, user_inputs, position_cutoff_map)
     
     if debug:
+        print('\nleague weights')
+        print(league_weighted_avg)
         projections_df.to_csv('./data/projections_debug_pitcher.csv', index=False)
 
     return projections_df[['id', 'position', 'value']]
