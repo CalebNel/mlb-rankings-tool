@@ -194,7 +194,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
         "ip": raw_score_ip * mult_fact_ip / league_max_vdp_ip,
         "k_per_bb": raw_score_k_per_bb * mult_fact_k_per_bb / league_max_vdp_k_per_bb,
         "out_allowed": raw_score_out_allowed * mult_fact_out_allowed / league_max_vdp_out_allowed,
-        "sold": raw_score_sold * mult_fact_sold / league_max_vdp_sold
+        "sold": (raw_score_sold * mult_fact_sold / league_max_vdp_sold).fillna(0)
     }
     
     

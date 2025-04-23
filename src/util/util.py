@@ -32,11 +32,54 @@ def get_projections_df():
     
     return projections_df
 
+# def add_positions(projections_df):
+#     # add mapping of summarized positions
+    
+#     projections_df['position'] = projections_df['position'].str.strip()
+#     # summarized_position_map_strip = {
+#     #     k.strip(): v for k, v in summarized_position_map.items()
+#     # }
+#     # summarized_position_map_ = dict((k.strip(), v) for k, v in summarized_position_map.items())
+#     summarized_position_map_strip = {
+#         k.replace(" ", ""): v for k, v in summarized_position_map.items()
+#     }
+#     # for k in summarized_position_map_strip:
+#     #     print(repr(k))
+#     print(summarized_position_map_strip)
+#     projections_df['summarized_pos'] = projections_df['position'].map(
+#         lambda x: summarized_position_map_strip.get(x, {}).get('summarized')
+#     )
+    
+#     print(projections_df.head(20))
+#     stop()
+    
+#     # projections_df['summarized_pos'] = projections_df['position'].map(lambda x: summarized_position_map.get(x, {}).get('summarized'))
+    
+#     return projections_df
+
 def add_positions(projections_df):
     # add mapping of summarized positions
+    projections_df['position'] = projections_df['position'].str.strip()
     
-    projections_df['summarized_pos'] = projections_df['position'].map(lambda x: summarized_position_map.get(x, {}).get('summarized'))
-    
+    summarized_position_map_strip = {
+        k.replace(" ", ""): v for k, v in summarized_position_map.items()
+    }
+
+    projections_df['summarized_pos'] = projections_df['position'].map(
+        lambda x: summarized_position_map_strip.get(x.replace(" ", ""), {}).get('summarized')
+        if isinstance(x, str) else None
+    )
+
+    # id bad mappings
+    bad_rows = projections_df[projections_df['summarized_pos'].isna()]
+
+    if not bad_rows.empty:
+        error_msg = (
+            "Some player positions could not be mapped.\n\n"
+            + bad_rows[['name', 'position']].to_string(index=False)
+        )
+        raise ValueError(error_msg)
+
     return projections_df
 
 

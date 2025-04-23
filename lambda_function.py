@@ -42,8 +42,8 @@ def lambda_handler(event, context):
 
 if __name__ == '__main__':
     
-    file_path = "./src/util/example_post_requests/event.json"
-    # file_path = "./src/util/example_post_requests/full_tuna.json"
+    # file_path = "./src/util/example_post_requests/event.json"
+    file_path = "./src/util/example_post_requests/event_in_season.json"
     with open(file_path, "r") as file:
         event = json.load(file)
         

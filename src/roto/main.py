@@ -8,8 +8,8 @@ from src.util import util as util
 def get_hitter_rankings(projections_df, user_inputs, debug=False):
     
     # filter only hitters
-    projections_df = projections_df[pd.isna(projections_df['bf'])].reset_index(drop=True) # remove pitchers
-    
+    projections_df = projections_df[~projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
+
     # add positions - both reg position and summarized positions should be with projections in prod
     projections_df = util.add_positions(projections_df)
     
@@ -38,7 +38,10 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     
     # filter only pitchers
     projections_df = projections_df[projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
-    # projections_df = projections_df[projections_df['position'].str.contains('SP', na=False)].reset_index(drop=True)
+    if user_inputs.get('season_type', 'preseason') == 'in-season':
+        # if in-season projections, filter out relief pitchers/closers
+        projections_df = projections_df[~projections_df['position'].str.contains('RP', na=False)].reset_index(drop=True)
+        projections_df = projections_df[~projections_df['position'].str.contains('UT,P', na=False)].reset_index(drop=True)
     
     # get total "free money" spent on hitters
     total_pitcher_sal = pitchers.calc_total_pitcher_budget(user_inputs)

@@ -1,0 +1,9 @@
+*.pem
+__pycache__/
+.DS_Store
+*.env
+.env.*
+sandbox/
+static_json/
+test/
+parquet_delete*

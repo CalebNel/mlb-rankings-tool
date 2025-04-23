@@ -69,7 +69,10 @@ def get_league_weighted_avg_hitters(projections_df, position_cutoff_map):
     projections_df['summarized_pos_cut_rank'] = projections_df['summarized_pos'].map(lambda x: position_cutoff_map.get(x, {}))
     
     # filter out players below cutline rank threshold
-    rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]
+    try:
+        rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]
+    except Exception as e:
+        raise ValueError(e)
     
     # calc league averages for rostered players
     ab = rostered_players['ab'].mean()
