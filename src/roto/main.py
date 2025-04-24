@@ -9,6 +9,9 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
     
     # filter only hitters
     projections_df = projections_df[~projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
+    if user_inputs.get('season_type', 'preseason') == 'in-season':
+        # if in-season projections, filter out dumb positions
+        projections_df = projections_df[~projections_df['position'].str.contains('WR', na=False)].reset_index(drop=True)
 
     # add positions - both reg position and summarized positions should be with projections in prod
     projections_df = util.add_positions(projections_df)
