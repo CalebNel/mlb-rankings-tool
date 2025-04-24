@@ -42,6 +42,8 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
         # if in-season projections, filter out relief pitchers/closers
         projections_df = projections_df[~projections_df['position'].str.contains('RP', na=False)].reset_index(drop=True)
         projections_df = projections_df[~projections_df['position'].str.contains('UT,P', na=False)].reset_index(drop=True)
+        projections_df = projections_df[~projections_df['position'].str.contains('P,UT', na=False)].reset_index(drop=True)
+        projections_df = projections_df[~projections_df['position'].str.contains('WR', na=False)].reset_index(drop=True)
     
     # get total "free money" spent on hitters
     total_pitcher_sal = pitchers.calc_total_pitcher_budget(user_inputs)
