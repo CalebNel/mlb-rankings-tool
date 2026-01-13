@@ -223,7 +223,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     projections_df['vdp_score_norm_initial'] = 0
     # ChatGPT'd this because python is dumb and creates copies of dfs
     projections_df.loc[(projections_df['vdp_score'] >= 0) & (projections_df['position'] == 'SP'), 'vdp_score_norm_initial'] = (
-        (projections_df['vdp_score'] - sp_score_thresh) ** (125 / 100)
+        (projections_df['vdp_score'] - sp_score_thresh) ** (118 / 100)
     )
 
     projections_df.loc[(projections_df['vdp_score'] < 0) & (projections_df['position'] == 'SP'), 'vdp_score_norm_initial'] = (
@@ -231,7 +231,7 @@ def calc_vdp_pitchers(projections_df, league_weighted_avg, total_pitcher_sal, us
     )
 
     projections_df.loc[(projections_df['vdp_score'] >= 0) & (projections_df['position'] == 'RP'), 'vdp_score_norm_initial'] = (
-        (projections_df['vdp_score'] - rp_score_thresh) ** (125 / 100)
+        (projections_df['vdp_score'] - rp_score_thresh) ** (118 / 100)
     )
 
     projections_df.loc[(projections_df['vdp_score'] < 0) & (projections_df['position'] == 'RP'), 'vdp_score_norm_initial'] = (

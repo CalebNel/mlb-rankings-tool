@@ -1,0 +1,13 @@
+pandas==2.2.2
+numpy==1.24.4
+requests
+# psycopg2-binary
+# polars==0.20.16  
+# boto3==1.29.1
+# pyarrow==14.0.1         
+# psutil==5.9.8
+# boto3
+# sqlalchemy
+# dotenv
+# pymysql
+# bs4

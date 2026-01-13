@@ -1,5 +1,7 @@
 # Hardcoded factors used in calculations. Probably static but who knows
 
+MARGINAL_VALUE_FACTOR = 0.75
+
 eligible_cats = {
     'hitter': ["run", "homerun", "rbi", "sb", "avg", "obp", "slg", "ops", "bb", "k", "tb", "hit", "bb_per_k", "cs", "pa", "ab", "single", "double", "triple"],
     'pitcher': ["win", "save", "era", "k_allowed", "whip", "qs", "hold", "bb_allowed", "hit_allowed", "homerun_allowed", "k_per_9", "loss", "ip", "k_per_bb", "out_allowed", "sold"]
@@ -44,59 +46,37 @@ summarized_position_map = {
 }
 
 
-
-# final vdp scores get adjusted by these relative position scores. not sure where hardcoded numbers come from
-vdp_positional_discount_map = {
-    "C": -2.17,
-    "CI": -1.57,
-    "MI": -1.26,
-    "O": -2.01
+# if needed, use these to adjust positional importance in roto calculations
+    # Higher value => increase importance of position to salary calculation
+positional_adjustments = {
+    "C": 0.75,
+    "CI": 1.0,
+    "MI": 1.0,
+    "O": 1.0
 }
 
-# these are used as a stat-importance adjustment (so high SB guys don't get nerfed) - don't really understand why though because in roto high SB guys should be getting nerfed
+# Use this to adjust importance of various hitter stats in roto calculations
+    # Higher value => increase importance of stat to salary calculation
 sgp_hitter_stat_map = {
-    "avg": 1.11,
-    "obp": 1.11,
-    "r": 1.05,
+    "avg": 1.0,
+    "obp": 1.0,
+    "r": 1.0,
     "homerun": 1.0,
-    "rbi": 1.02,
-    "sb": 2.2,
-    'slg': 1.11,
-    'ops': 1.11,
-    'ab': 0.8,
-    'bb': 1,
-    'k': 1,
-    'tb': 1,
-    "hit": 1,
-    "bb_per_k": 1,
-    "cs": 0.8,
-    "pa": 0.8,
-    "single": 1,
-    "double": 1.1,
-    "triple": 1.2
-}
-
-# idk why this is in there. factors that are multiplied by raw stat-adjustment (BE4 and down)
-sgp_hitter_stat_adjustment = {
-    "avg": 5,
-    "obp": 5,
-    "r": 1.6,
-    "homerun": 1.0,
-    "rbi": 1.4,
-    "sb": 0.6,
-    'slg': 5,
-    'ops': 5,
-    'ab': 1,
-    'bb': 1,
-    'k': 1,
-    'tb': 1,
-    "hit": 1,
-    "bb_per_k": 1,
-    "cs": 1,
-    "pa": 1,
-    "single": 1,
-    "double": 1,
-    "triple": 1,
+    "rbi": 1.0,
+    "sb": 1.3, # boosted because they wanted elly to be more valuable
+    'slg': 1.0,
+    'ops': 1.0,
+    'ab': 1.0,
+    'bb': 1.0,
+    'k': 1.0,
+    'tb': 1.0,
+    "hit": 1.0,
+    "bb_per_k": 1.0,
+    "cs": 1.0,
+    "pa": 1.0,
+    "single": 1.0,
+    "double": 1.0,
+    "triple": 1.0
 }
 
 

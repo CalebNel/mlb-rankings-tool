@@ -17,19 +17,44 @@ def get_hitter_rankings(projections_df, user_inputs, debug=False):
     projections_df = util.add_positions(projections_df)
     
     # get total "free money" spent on hitters
-    total_hitter_sal = hitters.calc_total_hitter_budget(user_inputs)
+    total_hitter_free_sal = hitters.calc_total_hitter_budget(user_inputs)
+    # print(total_hitter_sal)
+    # stop()
 
     # get position rank cutoffs - cols AN:AU in workbook
     position_cutoff_map = hitters.get_position_cutoff_map_hitters(user_inputs)
+    # print(position_cutoff_map)
+    # stop()
 
-    # get league weighted average stats of rostered players
-    league_weighted_avg, projections_df = hitters.get_league_weighted_avg_hitters(projections_df, position_cutoff_map)
+    rostered_players = hitters.get_rostered_players_df(projections_df, position_cutoff_map)
     
-    # get vdp from stats + league weighted average
-    projections_df = hitters.calc_vdp(projections_df, league_weighted_avg, total_hitter_sal, user_inputs)
+
+    # get league average stats & standard dev of rostered players
+    #   get average stats and stanDev for each stat across rostered players at all positions
+    #   (rostered players for now just top N players by plate appearances - could dial in more but results wouldn't change materially)
+    league_weighted_avg, rostered_players_std = hitters.get_league_weighted_avg_hitters(rostered_players)
+    # print(league_weighted_avg)
+    # stop()
     
+    # get sgp from stats + league weighted average + rostered players stddev
+    projections_df = hitters.calc_vdp(projections_df, league_weighted_avg, rostered_players_std, user_inputs)
+
+    # marginal value calculation grouped by position
+    projections_df[['marg_value_pos', 'marg_value_pos_unclipped']] = hitters.add_marginal_value_positional(projections_df, position_cutoff_map, percentiles=(0.10, 0.25, 0.50, 1.0))
+
+    # marginal value calculation across all players
+    projections_df[['marg_value_all', 'marg_value_all_unclipped']] = hitters.add_marginal_value_overall(projections_df, position_cutoff_map, percentiles=(0.10, 0.25, 0.50, 1.0))
+
+    # combine weighted marginal values and calculate auction values for rostered hitters
+    projections_df = hitters.calc_auction_values(projections_df, total_hitter_free_sal, position_cutoff_map, marginal_weight_all=0.7)
+
+    # combine weighted marginal values and calculate auction values for NON-rostered hitters
+    projections_df = hitters.calc_auction_values_unrostered(projections_df, position_cutoff_map, marginal_weight_all=0.7, neg_floor=-30.0, anchor_pos_key=None)
+
+    # combine rostered and unrostered auction values
+    projections_df["value"] = projections_df["value"].where(projections_df["value"] > 0, projections_df["dummy_value"])
     if debug:
-        print(league_weighted_avg)
+        # print(league_weighted_avg)
         projections_df.to_csv('./data/projections_debug_hitter.csv', index=False)
 
     return projections_df[['id', 'position', 'value']]

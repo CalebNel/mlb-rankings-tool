@@ -1,6 +1,6 @@
 import pandas as pd
 import requests
-from src.util.constants import summarized_position_map, eligible_cats, sgp_hitter_stat_map, sgp_hitter_stat_adjustment, sgp_pitcher_stat_map
+from src.util.constants import summarized_position_map, eligible_cats, sgp_hitter_stat_map, sgp_pitcher_stat_map
 
 
 def check_stat_inputs(user_inputs):
