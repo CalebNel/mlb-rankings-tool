@@ -8,14 +8,14 @@ from src.util import util as util
 def get_hitter_rankings(projections_df, user_inputs, debug=False):
     
     # filter only hitters
-    projections_df = projections_df[~projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
+    projections_df = projections_df[~projections_df['position'].str.contains('SP|RP|P', na=False)].reset_index(drop=True)
     if user_inputs.get('season_type', 'preseason') == 'in-season':
         # if in-season projections, filter out dumb positions
         projections_df = projections_df[~projections_df['position'].str.contains('WR', na=False)].reset_index(drop=True)
 
     # add positions - both reg position and summarized positions should be with projections in prod
     projections_df = util.add_positions(projections_df)
-    
+
     # get total "free money" spent on hitters
     total_hitter_free_sal = hitters.calc_total_hitter_budget(user_inputs)
     # print(total_hitter_sal)
@@ -65,14 +65,20 @@ def get_pitcher_rankings(projections_df, user_inputs, debug=False):
     projections_df = pitchers.add_fields(projections_df)
     
     # filter only pitchers
-    projections_df = projections_df[projections_df['position'].str.contains('P', na=False)].reset_index(drop=True)
+    projections_df = projections_df[projections_df['position'].str.contains('SP|RP|PP|P', na=False)].reset_index(drop=True)
+    projections_df = projections_df[~projections_df['position'].str.contains('UT, SP', na=False)].reset_index(drop=True) # take out shohei's hitter slot
     if user_inputs.get('season_type', 'preseason') == 'in-season':
         # if in-season projections, filter out relief pitchers/closers
         projections_df = projections_df[~projections_df['position'].str.contains('RP', na=False)].reset_index(drop=True)
         projections_df = projections_df[~projections_df['position'].str.contains('UT,P', na=False)].reset_index(drop=True)
         projections_df = projections_df[~projections_df['position'].str.contains('P,UT', na=False)].reset_index(drop=True)
+        projections_df = projections_df[~projections_df['position'].str.contains('UT, P', na=False)].reset_index(drop=True)
         projections_df = projections_df[~projections_df['position'].str.contains('WR', na=False)].reset_index(drop=True)
     
+    
+    # print(projections_df.head(500))
+    # stop()
+
     # get total "free money" spent on hitters
     total_pitcher_sal = pitchers.calc_total_pitcher_budget(user_inputs)
 

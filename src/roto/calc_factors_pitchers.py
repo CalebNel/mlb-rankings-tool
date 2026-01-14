@@ -49,10 +49,18 @@ def get_league_weighted_avg_pitchers(projections_df, position_cutoff_map):
     
     # rank points
     projections_df['points_rank'] = projections_df.groupby('position')['fpts'].rank(ascending=False)
-    
+
     # join position_cutoff_map 
-    projections_df['summarized_pos_cut_rank'] = projections_df['position'].map(lambda x: position_cutoff_map.get(x, {}))
-    
+    projections_df['summarized_pos_cut_rank'] = projections_df['position'].map(position_cutoff_map)
+    missing = projections_df['summarized_pos_cut_rank'].isna()
+    if missing.any():
+        bad = projections_df.loc[missing, ['name', 'position']].head(30)
+        raise ValueError(
+            "Found pitcher rows with positions not in position_cutoff_map. "
+            "Expected only 'SP' and 'RP'.\n\n"
+            + bad.to_string(index=False)
+        )
+
     # filter out players below cutline rank threshold
     rostered_players = projections_df[projections_df['points_rank'] <= projections_df['summarized_pos_cut_rank']]
     
