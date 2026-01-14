@@ -41,6 +41,8 @@ summarized_position_map = {
     "1B, 2B, SS": {"detailed": "12S", "summarized": "MI"},
     "1B, 3B, SS": {"detailed": "13S", "summarized": "CI"},
     "2B, 3B, OF": {"detailed": "23O", "summarized": "CI"},
+    "SP, UT": {"detailed": "SPUT", "summarized": "O"},
+    "UT, SP": {"detailed": "SPUT", "summarized": "O"},
     "SP": {"detailed": "SP", "summarized": "SP"},
     "P": {"detailed": "P", "summarized": "SP"},
     "PP": {"detailed": "P", "summarized": "SP"},

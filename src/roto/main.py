@@ -7,8 +7,13 @@ from src.util import util as util
 
 def get_hitter_rankings(projections_df, user_inputs, debug=False):
     
-    # filter only hitters
-    projections_df = projections_df[~projections_df['position'].str.contains('SP|RP|P', na=False)].reset_index(drop=True)
+    # filter only hitters - drop pitchers unless it's a UT,P type position because of shohei
+    projections_df = projections_df[
+        ~(
+            projections_df["position"].str.contains(r"(^|,\s*)(SP|RP|P)(\s*,|$)", regex=True, na=False)
+            & ~projections_df["position"].str.contains(r"(^|,\s*)UT(\s*,|$)", regex=True, na=False)
+        )
+    ].reset_index(drop=True)
     if user_inputs.get('season_type', 'preseason') == 'in-season':
         # if in-season projections, filter out dumb positions
         projections_df = projections_df[~projections_df['position'].str.contains('WR', na=False)].reset_index(drop=True)

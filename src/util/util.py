@@ -53,7 +53,7 @@ def add_positions(projections_df):
     projections_df = projections_df.copy()
     projections_df["position"] = projections_df["position"].astype(str).str.strip()
 
-    DROP_TOKENS = {"CI", "MI", "UT"}
+    DROP_TOKENS = {"CI", "MI", "UT", "SP", "RP", "P"}
 
     POSITION_ORDER = {
         "C": 1,
