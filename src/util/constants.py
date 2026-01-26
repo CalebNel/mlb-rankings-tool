@@ -54,7 +54,7 @@ summarized_position_map = {
 # if needed, use these to adjust positional importance in roto calculations
     # Higher value => increase importance of position to salary calculation
 positional_adjustments = {
-    "C": 0.75,
+    "C": 0.875,
     "CI": 1.0,
     "MI": 1.0,
     "O": 1.0
