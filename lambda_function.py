@@ -49,6 +49,7 @@ if __name__ == '__main__':
         
     pd.set_option("display.max_rows", 1000)
     data = lambda_handler(event, context=None)
+    print(data["body"])
     df = pd.DataFrame(data["body"])
     df = df.sort_values(by="value", ascending=False).reset_index(drop=True)
     print(df.head(50))

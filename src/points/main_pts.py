@@ -24,6 +24,7 @@ def get_points_league_rankings(projections_df, user_inputs, debug=False):
     
     # calculate salary
     projections_df = value.calculate_salary(projections_df, user_inputs)
+    projections_df = projections_df.sort_values(by=['value', 'fpts'], ascending=[False, False])
     
     if debug:
         projections_df.to_csv('./data/projections_debug_hitter.csv', index=False)
